@@ -1,0 +1,1248 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PharmaMed Notes | Pharmacy & Medical Revision Portal</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            teal: {
+              50: '#f0fdfa',
+              100: '#ccfbf1',
+              500: '#14b8a6',
+              600: '#0d9488',
+              700: '#0f766e',
+              800: '#115e59',
+              900: '#134e4a',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      #printArea, #printArea * {
+        visibility: visible;
+      }
+      #printArea {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        display: block !important;
+      }
+      .no-print {
+        display: none !important;
+      }
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: rgba(150, 150, 150, 0.1);
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: rgba(150, 150, 150, 0.3);
+      border-radius: 9999px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: rgba(150, 150, 150, 0.5);
+    }
+  </style>
+</head>
+
+<body class="bg-slate-50 text-slate-800 dark:bg-slate-950 dark:text-slate-100 transition-colors duration-200 min-h-screen flex flex-col font-sans">
+
+  <header class="sticky top-0 z-40 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <!-- Logo -->
+        <div class="flex items-center space-x-3 cursor-pointer" onclick="switchTab('notes')">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-teal-600 to-emerald-500 flex items-center justify-center text-white shadow-md shadow-teal-500/20">
+            <i class="fa-solid fa-staff-snake text-xl"></i>
+          </div>
+          <div>
+            <div class="flex items-center space-x-1.5">
+              <span class="font-extrabold text-xl tracking-tight text-slate-900 dark:text-white">Pharma<span class="text-teal-600 dark:text-teal-400">Med</span></span>
+              <span class="bg-teal-100 dark:bg-teal-900/60 text-teal-700 dark:text-teal-300 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">Hub</span>
+            </div>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400 -mt-0.5 font-medium">B.Pharm, D.Pharm & Medical Notes</p>
+          </div>
+        </div>
+
+        <!-- Center Navigation Tabs -->
+        <nav class="hidden md:flex items-center space-x-1 bg-slate-100 dark:bg-slate-800/80 p-1 rounded-xl">
+          <button onclick="switchTab('notes')" id="nav-btn-notes" class="px-4 py-1.5 rounded-lg text-sm font-semibold transition-all text-white bg-teal-600 shadow-sm flex items-center gap-2">
+            <i class="fa-solid fa-book-open"></i> Notes
+          </button>
+          <button onclick="switchTab('dictionary')" id="nav-btn-dictionary" class="px-4 py-1.5 rounded-lg text-sm font-semibold transition-all text-slate-600 dark:text-slate-300 hover:text-teal-600 dark:hover:text-teal-400 flex items-center gap-2">
+            <i class="fa-solid fa-pills"></i> Drug Index
+          </button>
+          <button onclick="switchTab('quiz')" id="nav-btn-quiz" class="px-4 py-1.5 rounded-lg text-sm font-semibold transition-all text-slate-600 dark:text-slate-300 hover:text-teal-600 dark:hover:text-teal-400 flex items-center gap-2">
+            <i class="fa-solid fa-bolt"></i> Viva & Quiz
+          </button>
+          <button onclick="switchTab('custom')" id="nav-btn-custom" class="px-4 py-1.5 rounded-lg text-sm font-semibold transition-all text-slate-600 dark:text-slate-300 hover:text-teal-600 dark:hover:text-teal-400 flex items-center gap-2">
+            <i class="fa-solid fa-pen-nib"></i> My Notepad
+          </button>
+        </nav>
+
+        <!-- Right Side Controls: Search button & Dark Mode Toggle -->
+        <div class="flex items-center space-x-3">
+          <button onclick="openNoteCreatorModal()" class="hidden sm:inline-flex items-center gap-1.5 bg-teal-50 dark:bg-teal-950/60 border border-teal-200 dark:border-teal-800 hover:bg-teal-100 dark:hover:bg-teal-900/60 text-teal-700 dark:text-teal-300 text-xs font-semibold px-3 py-2 rounded-lg transition-all">
+            <i class="fa-solid fa-plus text-xs"></i> New Note
+          </button>
+
+          <button id="themeToggleBtn" onclick="toggleDarkMode()" aria-label="Toggle Theme" class="w-9 h-9 rounded-xl flex items-center justify-center bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition">
+            <i class="fa-solid fa-moon text-sm dark:hidden"></i>
+            <i class="fa-solid fa-sun text-sm hidden dark:block text-amber-400"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile Nav Bar (Bottom pinned or top strip) -->
+    <div class="flex md:hidden border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-2 py-1.5 justify-around text-xs">
+      <button onclick="switchTab('notes')" id="m-nav-notes" class="text-teal-600 font-semibold p-2 flex flex-col items-center"><i class="fa-solid fa-book-open mb-1"></i>Notes</button>
+      <button onclick="switchTab('dictionary')" id="m-nav-dictionary" class="text-slate-500 font-medium p-2 flex flex-col items-center"><i class="fa-solid fa-pills mb-1"></i>Index</button>
+      <button onclick="switchTab('quiz')" id="m-nav-quiz" class="text-slate-500 font-medium p-2 flex flex-col items-center"><i class="fa-solid fa-bolt mb-1"></i>Viva</button>
+      <button onclick="switchTab('custom')" id="m-nav-custom" class="text-slate-500 font-medium p-2 flex flex-col items-center"><i class="fa-solid fa-bookmark mb-1"></i>Saved</button>
+    </div>
+  </header>
+
+  <main class="flex-grow max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6">
+
+    <!-- TAB 1: NOTES EXPLORER -->
+    <section id="tab-notes" class="space-y-6">
+      <!-- Search, Stats & Filter Bar -->
+      <div class="bg-gradient-to-r from-teal-900 via-slate-900 to-teal-950 text-white rounded-2xl p-6 sm:p-8 shadow-xl relative overflow-hidden">
+        <div class="absolute -right-10 -bottom-10 opacity-10 pointer-events-none">
+          <i class="fa-solid fa-capsules text-[220px]"></i>
+        </div>
+        <div class="relative z-10 max-w-2xl">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-500/20 border border-teal-500/30 text-teal-300 text-xs font-medium mb-3">
+            <i class="fa-solid fa-graduation-cap"></i> Complete Pharmacy Exam Master Notes
+          </div>
+          <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight">Rapid Revision & Clinical Concept Library</h1>
+          <p class="text-slate-300 text-sm mt-2">Master B.Pharm, D.Pharm, GPAT & Medical licensing topics with curated high-yield diagrams, mechanisms, and viva points.</p>
+
+          <!-- Search Input -->
+          <div class="mt-5 relative">
+            <i class="fa-solid fa-magnifying-glass absolute left-4 top-3.5 text-slate-400"></i>
+            <input type="text" id="noteSearchInput" oninput="filterNotes()" placeholder="Search topics, drugs, mechanisms, definitions (e.g., NSAIDs, Tablets, ANS)..." 
+              class="w-full pl-11 pr-10 py-3 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-400 text-sm">
+            <button onclick="clearSearch()" id="clearSearchBtn" class="hidden absolute right-3.5 top-3.5 text-slate-400 hover:text-white">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Quick highlights badges -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6 pt-6 border-t border-white/10 text-xs text-slate-300">
+          <div class="flex items-center gap-2"><i class="fa-solid fa-check-circle text-teal-400"></i> Exam High Yield Topics</div>
+          <div class="flex items-center gap-2"><i class="fa-solid fa-check-circle text-teal-400"></i> MoA & Classification</div>
+          <div class="flex items-center gap-2"><i class="fa-solid fa-check-circle text-teal-400"></i> Printable Cheat Sheets</div>
+          <div class="flex items-center gap-2"><i class="fa-solid fa-check-circle text-teal-400"></i> Viva Voice Q&A Ready</div>
+        </div>
+      </div>
+
+      <!-- Categories Filter Pills -->
+      <div class="flex items-center justify-between gap-4 flex-wrap">
+        <div class="flex items-center gap-2 overflow-x-auto pb-2 custom-scrollbar max-w-full" id="categoryChipsContainer">
+          <!-- Populated by JS -->
+        </div>
+        <div class="text-xs font-semibold text-slate-500 dark:text-slate-400 whitespace-nowrap">
+          Showing: <span id="notesCount" class="text-teal-600 dark:text-teal-400">0</span> notes
+        </div>
+      </div>
+
+      <!-- Notes Grid -->
+      <div id="notesGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Rendered by JS -->
+      </div>
+      <div id="emptyNotesMsg" class="hidden text-center py-16 bg-white dark:bg-slate-900 rounded-2xl border border-dashed border-slate-300 dark:border-slate-800">
+        <i class="fa-solid fa-file-circle-question text-4xl text-slate-400 mb-3"></i>
+        <h3 class="text-lg font-bold">No notes matched your search</h3>
+        <p class="text-sm text-slate-500 mt-1">Try another keyword or change your subject filter.</p>
+        <button onclick="resetFilters()" class="mt-4 px-4 py-2 bg-teal-600 text-white text-xs font-semibold rounded-lg hover:bg-teal-700">Reset Filters</button>
+      </div>
+    </section>
+
+    <!-- TAB 2: DRUG & MEDICAL TERMINOLOGY INDEX -->
+    <section id="tab-dictionary" class="space-y-6 hidden">
+      <div class="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-5">
+          <div>
+            <h2 class="text-xl font-bold flex items-center gap-2">
+              <i class="fa-solid fa-book-medical text-teal-600"></i> Pharmacological Drug Index & Medical Glossary
+            </h2>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Quick clinical references: Classifications, mechanisms, adverse reactions, and definitions.</p>
+          </div>
+          <div class="relative w-full sm:w-72">
+            <i class="fa-solid fa-filter absolute left-3.5 top-3 text-slate-400 text-xs"></i>
+            <input type="text" id="dictSearchInput" oninput="filterDictionary()" placeholder="Filter drug name or term..." 
+              class="w-full pl-9 pr-4 py-2 text-sm rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500">
+          </div>
+        </div>
+
+        <!-- Dictionary Table -->
+        <div class="overflow-x-auto mt-4 custom-scrollbar">
+          <table class="w-full text-left text-sm border-collapse">
+            <thead>
+              <tr class="bg-slate-100 dark:bg-slate-800/60 text-slate-700 dark:text-slate-300 text-xs uppercase font-semibold">
+                <th class="p-3.5 rounded-l-lg">Drug / Medical Term</th>
+                <th class="p-3.5">Category / Subject</th>
+                <th class="p-3.5">Mechanism of Action / Definition</th>
+                <th class="p-3.5">Clinical Key / Adverse Effects</th>
+                <th class="p-3.5 rounded-r-lg text-center">Action</th>
+              </tr>
+            </thead>
+            <tbody id="dictionaryBody" class="divide-y divide-slate-200 dark:divide-slate-800">
+              <!-- Rendered by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: VIVA & FLASHCARD QUIZ MODE -->
+    <section id="tab-quiz" class="space-y-6 hidden">
+      <div class="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-5">
+          <div>
+            <h2 class="text-xl font-bold flex items-center gap-2">
+              <i class="fa-solid fa-graduation-cap text-teal-600"></i> Interactive Viva Exam & Flashcard Trainer
+            </h2>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Test your high-yield pharmacy recall before semester practicals and GPAT exams.</p>
+          </div>
+          <div class="flex items-center gap-3">
+            <span class="text-xs font-semibold px-3 py-1.5 rounded-lg bg-teal-50 dark:bg-teal-950 text-teal-700 dark:text-teal-300 border border-teal-200 dark:border-teal-800">
+              Score: <span id="quizScore">0</span> / <span id="quizTotal">0</span>
+            </span>
+            <button onclick="resetQuizScore()" class="text-xs px-2.5 py-1.5 text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 border rounded-lg">
+              <i class="fa-solid fa-rotate-right"></i> Reset
+            </button>
+          </div>
+        </div>
+
+        <!-- Quiz Container -->
+        <div class="max-w-2xl mx-auto py-8">
+          <div id="quizCard" class="bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/80 rounded-2xl p-6 sm:p-8 shadow-sm">
+            <div class="flex items-center justify-between mb-4">
+              <span id="quizCategoryBadge" class="text-xs font-semibold px-2.5 py-1 rounded bg-teal-100 dark:bg-teal-900/60 text-teal-800 dark:text-teal-300">
+                Pharmaceutics
+              </span>
+              <span id="quizCounter" class="text-xs text-slate-400 font-mono">Question 1 of 5</span>
+            </div>
+
+            <h3 id="quizQuestion" class="text-lg sm:text-xl font-bold text-slate-900 dark:text-white leading-relaxed mb-6">
+              Question loading...
+            </h3>
+
+            <!-- Options List -->
+            <div id="quizOptions" class="space-y-3">
+              <!-- Rendered via JS -->
+            </div>
+
+            <!-- Feedback banner -->
+            <div id="quizExplanation" class="hidden mt-6 p-4 rounded-xl text-sm leading-relaxed border transition-all"></div>
+
+            <!-- Quiz Navigation -->
+            <div class="flex items-center justify-between mt-6 pt-4 border-t border-slate-200 dark:border-slate-700">
+              <button onclick="prevQuizQuestion()" id="prevQuizBtn" class="px-4 py-2 rounded-lg text-xs font-semibold border border-slate-300 dark:border-slate-600 hover:bg-slate-200 dark:hover:bg-slate-700 transition">
+                <i class="fa-solid fa-arrow-left mr-1"></i> Previous
+              </button>
+              <button onclick="nextQuizQuestion()" id="nextQuizBtn" class="px-5 py-2 rounded-lg text-xs font-semibold bg-teal-600 hover:bg-teal-700 text-white transition flex items-center gap-1.5 shadow">
+                Next <i class="fa-solid fa-arrow-right ml-1"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 4: MY NOTEPAD & SAVED REVISION NOTES -->
+    <section id="tab-custom" class="space-y-6 hidden">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div>
+          <h2 class="text-xl font-bold flex items-center gap-2">
+            <i class="fa-solid fa-folder-bookmark text-teal-600"></i> My Revision Notebook & Bookmarks
+          </h2>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Access saved syllabus chapters and write custom viva points (saved in browser memory).</p>
+        </div>
+        <button onclick="openNoteCreatorModal()" class="px-4 py-2 rounded-xl bg-teal-600 text-white text-xs font-semibold hover:bg-teal-700 transition flex items-center gap-2 shadow-sm">
+          <i class="fa-solid fa-plus"></i> Add Personal Note
+        </button>
+      </div>
+
+      <!-- Bookmarked section -->
+      <div>
+        <h3 class="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-3 flex items-center gap-2">
+          <i class="fa-solid fa-star text-amber-500"></i> Bookmarked Master Notes
+        </h3>
+        <div id="bookmarkedNotesGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          <!-- Filled by JS -->
+        </div>
+        <div id="noBookmarksMsg" class="p-6 text-center bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-slate-400 text-sm">
+          No bookmarked notes yet. Click the <i class="fa-regular fa-bookmark"></i> bookmark icon on any topic card to save it here!
+        </div>
+      </div>
+
+      <!-- User created notes -->
+      <div class="pt-6 border-t border-slate-200 dark:border-slate-800">
+        <h3 class="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-3 flex items-center gap-2">
+          <i class="fa-solid fa-file-pen text-teal-600"></i> Custom Revision Snippets (<span id="customNotesCount">0</span>)
+        </h3>
+        <div id="customNotesGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          <!-- Custom notes cards rendered here -->
+        </div>
+        <div id="noCustomNotesMsg" class="p-8 text-center bg-white dark:bg-slate-900 border border-dashed border-slate-300 dark:border-slate-800 rounded-xl text-slate-400 text-sm">
+          You haven't written any custom study notes yet. Click "Add Personal Note" to jot down lab formulas or viva points!
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- MODAL: READ FULL NOTE -->
+  <div id="noteModal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
+    <div class="bg-white dark:bg-slate-900 rounded-2xl max-w-3xl w-full max-h-[92vh] flex flex-col shadow-2xl border border-slate-200 dark:border-slate-800 animate-in fade-in zoom-in-95 duration-150">
+      
+      <!-- Modal Header -->
+      <div class="p-5 sm:p-6 border-b border-slate-200 dark:border-slate-800 flex items-start justify-between">
+        <div>
+          <div class="flex items-center gap-2 flex-wrap mb-2">
+            <span id="modalSubject" class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-teal-100 dark:bg-teal-900/60 text-teal-800 dark:text-teal-300">
+              Pharmaceutics
+            </span>
+            <span id="modalReadTime" class="text-xs text-slate-400 flex items-center gap-1">
+              <i class="fa-regular fa-clock"></i> 6 min read
+            </span>
+          </div>
+          <h2 id="modalTitle" class="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white">Topic Title</h2>
+        </div>
+        <button onclick="closeNoteModal()" class="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-700 dark:hover:text-white bg-slate-100 dark:bg-slate-800">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- Modal Body (Printable Content) -->
+      <div id="modalBody" class="p-5 sm:p-8 overflow-y-auto custom-scrollbar space-y-6 text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+        <!-- Injected via JS -->
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="p-4 sm:p-5 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between flex-wrap gap-3 bg-slate-50 dark:bg-slate-800/40 rounded-b-2xl">
+        <div class="flex items-center gap-2">
+          <button id="modalBookmarkBtn" onclick="toggleModalBookmark()" class="px-3.5 py-2 rounded-xl text-xs font-semibold border border-slate-300 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700 flex items-center gap-1.5 transition">
+            <i class="fa-regular fa-bookmark"></i> Bookmark
+          </button>
+          <button onclick="copyCurrentNote()" class="px-3.5 py-2 rounded-xl text-xs font-semibold border border-slate-300 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700 flex items-center gap-1.5 transition">
+            <i class="fa-regular fa-copy"></i> Copy Content
+          </button>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="printModalNote()" class="px-4 py-2 rounded-xl text-xs font-semibold bg-teal-600 hover:bg-teal-700 text-white flex items-center gap-1.5 shadow">
+            <i class="fa-solid fa-print"></i> Print / Save PDF
+          </button>
+          <button onclick="closeNoteModal()" class="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-200">
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: ADD CUSTOM NOTE -->
+  <div id="customNoteModal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
+    <div class="bg-white dark:bg-slate-900 rounded-2xl max-w-xl w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-800 animate-in fade-in zoom-in-95 duration-150">
+      <div class="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800 mb-4">
+        <h3 class="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+          <i class="fa-solid fa-pen-to-square text-teal-600"></i> Create Quick Study Note
+        </h3>
+        <button onclick="closeNoteCreatorModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <form id="customNoteForm" onsubmit="handleSaveCustomNote(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">Subject</label>
+          <select id="customSubject" required class="w-full text-xs p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-teal-500">
+            <option value="Pharmaceutics">Pharmaceutics</option>
+            <option value="Pharmacology">Pharmacology</option>
+            <option value="Pharmaceutical Chemistry">Pharmaceutical Chemistry</option>
+            <option value="Pharmacognosy">Pharmacognosy</option>
+            <option value="Human Anatomy & Physiology">Human Anatomy & Physiology</option>
+            <option value="Social Pharmacy">Social Pharmacy</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">Topic Title</label>
+          <input type="text" id="customTitle" required placeholder="e.g. Bioavailability & First Pass Metabolism" 
+            class="w-full text-xs p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-teal-500">
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">Tags (comma separated)</label>
+          <input type="text" id="customTags" placeholder="e.g. Pharmacokinetics, AUC, Oral Route" 
+            class="w-full text-xs p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-teal-500">
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">Summary / High-Yield Notes</label>
+          <textarea id="customContent" rows="6" required placeholder="Write bullet points, formulas, mechanisms, or clinical points..." 
+            class="w-full text-xs p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-teal-500 font-sans"></textarea>
+        </div>
+
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" onclick="closeNoteCreatorModal()" class="px-4 py-2 text-xs font-semibold rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+            Cancel
+          </button>
+          <button type="submit" class="px-5 py-2 text-xs font-semibold rounded-xl bg-teal-600 hover:bg-teal-700 text-white shadow">
+            Save Note
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Feedback Box -->
+  <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 bg-slate-900 text-white dark:bg-teal-900 dark:text-teal-100 border border-teal-500/30 px-4 py-3 rounded-xl shadow-xl flex items-center gap-3 text-xs">
+    <i id="toastIcon" class="fa-solid fa-circle-check text-teal-400"></i>
+    <span id="toastMsg">Action successful</span>
+  </div>
+
+  <!-- Hidden Print Area for High Quality Single Note Printing -->
+  <div id="printArea" class="hidden p-8 bg-white text-black font-sans">
+    <div id="printContent"></div>
+  </div>
+
+  <script>
+    // PRE-POPULATED HIGH-YIELD PHARMACY AND MEDICAL NOTES
+    const MASTER_NOTES = [
+      {
+        id: 'note-1',
+        title: 'Tablet Manufacturing & Common Compression Defects',
+        subject: 'Pharmaceutics',
+        readTime: '6 min',
+        tags: ['Tablets', 'Formulation', 'Defects', 'Excipients', 'Quality Control'],
+        summary: 'Comprehensive review of wet/dry granulation, direct compression, and troubleshooting tableting defects like Capping, Lamination, Sticking, Picking, and Mottling.',
+        sections: [
+          {
+            heading: '1. Granulation Techniques',
+            content: `Tablet manufacturing relies mainly on three methods:
+• <strong>Wet Granulation:</strong> Blending API + binder solution (e.g., PVP, Starch paste), drying in Fluidized Bed Dryer (FBD), sizing, lubrication, and compression. Best for high-dose, non-compressible APIs.
+• <strong>Dry Granulation (Slugging or Roller Compactor):</strong> Applied for moisture-sensitive or heat-labile active drugs like Aspirin and vitamins.
+• <strong>Direct Compression:</strong> Fast & cost-effective. Requires directly compressible excipients like Microcrystalline Cellulose (Avicel PH 102) and Spray-dried Lactose.`
+          },
+          {
+            heading: '2. Major Tableting Defects & Root Causes',
+            content: `• <strong>Capping:</strong> Partial or complete separation of the top or bottom crown of a tablet from the main body. <em>Causes:</em> Entrapped air during compression, excess fine particles, dry granules (<1% moisture).
+• <strong>Lamination:</strong> Separation of a tablet into two or more distinct horizontal layers. <em>Cause:</em> Air entrapment, oily substances.
+• <strong>Chipping:</strong> Breaking of tablet edges during ejection or handling. <em>Cause:</em> Worn punch/die tips.
+• <strong>Sticking & Picking:</strong> Sticking refers to material adhering to the die wall; Picking occurs when punch surface markings/letters pull granule material out. <em>Remedy:</em> Increase lubricant (Magnesium Stearate 0.5-1.0%) or polish punch faces.
+• <strong>Mottling:</strong> Unequal color distribution on the tablet surface. <em>Cause:</em> Migration of dye during drying, poorly blended colorant.`
+          },
+          {
+            heading: '3. Quality Control (QC) Pharmacopoeial Tests',
+            content: `1. <strong>Weight Variation:</strong> 20 tablets weighted individually (IP/BP/USP limits: ±10% for ≤80mg, ±7.5% for 80-250mg, ±5% for >250mg).
+2. <strong>Friability:</strong> Roche Friabilator rotated 100 times at 25 RPM. Standard limit: Weight loss must be <strong>less than 1.0%</strong>.
+3. <strong>Disintegration Time (DT):</strong> Uncoated tablets: Max 15 minutes; Film-coated: Max 30 minutes; Enteric coated: 2 hours in 0.1N HCl (no disintegration) followed by phosphate buffer pH 6.8 (<60 min).`
+          }
+        ],
+        vivaPoints: [
+          'What is the standard acceptable friability percentage? Answer: Less than 1.0% w/w.',
+          'Which excipient acts as a disintegrant? Answer: Sodium Starch Glycolate (Explotab), Cross-carmellose sodium.',
+          'Differentiate capping from lamination: Capping involves detachment of the crown; lamination is multi-layer slicing.'
+        ]
+      },
+      {
+        id: 'note-2',
+        title: 'NSAIDs: Classification, COX Isozymes & Clinical Hazards',
+        subject: 'Pharmacology',
+        readTime: '8 min',
+        tags: ['NSAIDs', 'Analgesics', 'COX-2', 'Aspirin', 'Prostaglandins'],
+        summary: 'Systematic classification of non-steroidal anti-inflammatory drugs, COX-1 vs COX-2 inhibition, mechanisms of antipyretic/analgesic action, and peptic ulcer risks.',
+        sections: [
+          {
+            heading: '1. Mechanism of Action',
+            content: `NSAIDs act by inhibiting the enzyme <strong>Cyclooxygenase (COX)</strong>, preventing the synthesis of Prostaglandins (PGs) and Thromboxane A2 (TXA2) from Arachidonic acid:
+• <strong>COX-1 (Constitutive):</strong> Produces cytoprotective PGs in gastric mucosa, supports renal blood flow, and TXA2 in platelets (clotting).
+• <strong>COX-2 (Inducible):</strong> Induced at inflammatory sites by cytokines, causing pain, erythema, edema, and fever (pyrexia) via PGE2 action on the preoptic hypothalamus.`
+          },
+          {
+            heading: '2. Chemical Classification',
+            content: `• <strong>Non-Selective COX Inhibitors:</strong>
+  - Salicylates: Aspirin (irreversible acetylator of COX)
+  - Propionic acid derivatives: Ibuprofen, Naproxen
+  - Indole derivatives: Indomethacin (potent, used in gout & PDA closure)
+  - Enolic acid (Oxicams): Piroxicam, Meloxicam
+  - Arylacetic acid: Diclofenac, Aceclofenac
+• <strong>Preferential COX-2 Inhibitors:</strong> Nimesulide, Meloxicam
+• <strong>Selective COX-2 Inhibitors:</strong> Celecoxib, Etoricoxib (spares stomach lining, but increases cardiovascular thrombotic events due to PGI2/TXA2 imbalance).
+• <strong>Analgesic-Antipyretic with Weak Anti-inflammatory:</strong> Paracetamol (Acetaminophen) - acts primarily on central peroxidase enzymes.`
+          },
+          {
+            heading: '3. Clinical Adverse Effects & Toxicity',
+            content: `• <strong>Gastric Ulceration & GI Bleeding:</strong> Due to suppression of mucosal PGE2 & PGI2 synthesis.
+• <strong>Renal Dysfunction:</strong> Salt/water retention and papillary necrosis in chronic users.
+• <strong>Aspirin Toxicity (Salicylism):</strong> Tinnitus, vertigo, respiratory alkalosis followed by metabolic acidosis. In children with viral fevers, Aspirin can trigger fatal <strong>Reye\'s Syndrome</strong>.`
+          }
+        ],
+        vivaPoints: [
+          'Why is Aspirin contraindicated in children suffering from chickenpox or influenza? Answer: Risk of Reye\'s syndrome (hepatic encephalopathy).',
+          'Antidote for Paracetamol toxicity: N-acetylcysteine (NAC) which replenishes hepatic glutathione reserves.',
+          'Why do Coxibs have higher cardiovascular risk? Answer: They block anti-thrombotic PGI2 without blocking pro-thrombotic TXA2.'
+        ]
+      },
+      {
+        id: 'note-3',
+        title: 'Autonomic Nervous System: Sympathetic vs Parasympathetic & Receptors',
+        subject: 'Human Anatomy & Physiology',
+        readTime: '7 min',
+        tags: ['ANS', 'Adrenergic', 'Cholinergic', 'Acetylcholine', 'Neurotransmission'],
+        summary: 'Master map of the autonomic nervous system: Adrenergic alpha & beta receptors, muscarinic/nicotinic acetylcholine receptors, and organ responses.',
+        sections: [
+          {
+            heading: '1. Anatomical Organization',
+            content: `• <strong>Sympathetic Division (Thoracolumbar Outflow T1–L2):</strong> "Fight or Flight". Short preganglionic fibers (Acetylcholine) → Paravertebral sympathetic chain ganglia → Long postganglionic fibers releasing Noradrenaline (Norepinephrine) on effector organs.
+• <strong>Parasympathetic Division (Craniosacral Outflow CN III, VII, IX, X and S2–S4):</strong> "Rest and Digest". Long preganglionic fibers (ACh) → Ganglia near/inside target organs → Short postganglionic fibers (ACh).`
+          },
+          {
+            heading: '2. Receptor Subtypes & Second Messengers',
+            content: `<strong>Adrenergic Receptors:</strong>
+• <strong>Alpha-1 (α1):</strong> Gq-coupled (↑ IP3/DAG, ↑ Ca2+). Causes vascular smooth muscle vasoconstriction, pupil dilation (mydriasis), sphincter contraction.
+• <strong>Alpha-2 (α2):</strong> Gi-coupled (↓ cAMP). Presynaptic autoreceptors, decreases sympathetic outflow.
+• <strong>Beta-1 (β1):</strong> Gs-coupled (↑ cAMP). Located on heart (SA node, AV node, myocardium) → ↑ Heart Rate (chronotropic) & ↑ Inotropic contractility; also triggers Renin release in kidneys.
+• <strong>Beta-2 (β2):</strong> Gs-coupled. Smooth muscle relaxation → Bronchodilation, uterine relaxation, vasodilation in skeletal muscle vascular beds.
+
+<strong>Cholinergic Receptors:</strong>
+• <strong>M1:</strong> Gastric parietal cells (↑ acid secretion), CNS.
+• <strong>M2:</strong> Cardiac atrium & nodes (↓ heart rate, bradycardia via Gi).
+• <strong>M3:</strong> Exocrine glands (↑ salivation, sweating, lacrimation), bronchial constriction, detrusor contraction (urination).
+• <strong>Nicotinic (Nm & Nn):</strong> Ligand-gated ion channels (Na+/K+ flux) at neuromuscular junction (Nm) and autonomic ganglia/adrenal medulla (Nn).`
+          }
+        ],
+        vivaPoints: [
+          'Which adrenergic receptor is targeted for acute asthma attacks? Answer: Beta-2 receptor (e.g., Salbutamol/Albuterol).',
+          'What happens during Atropine overdose? Answer: Anticholinergic toxidrome ("Dry as a bone, blind as a bat, red as a beet, hot as a hare, mad as a hatter").',
+          'Which neurotransmitter is present at ALL autonomic ganglia? Answer: Acetylcholine (acting on Nn receptors).'
+        ]
+      },
+      {
+        id: 'note-4',
+        title: 'Alkaloids & Cardiac Glycosides: Extraction & Chemical Tests',
+        subject: 'Pharmacognosy',
+        readTime: '9 min',
+        tags: ['Phytochemistry', 'Alkaloids', 'Glycosides', 'Digitalis', 'Mayer Test'],
+        summary: 'Comprehensive pharmacognostical study of true vs pseudo alkaloids, Keller-Kiliani test, and therapeutic extractions from Cinchona, Rauwolfia, and Digitalis.',
+        sections: [
+          {
+            heading: '1. Alkaloids: Definition & Confirmatory Tests',
+            content: `Alkaloids are basic nitrogenous plant metabolites with heterocyclic rings, derived from amino acids (e.g., Atropine, Morphine, Quinine, Reserpine).
+<strong>Key Precipitation Reagents:</strong>
+• <strong>Mayer’s Reagent</strong> (Potassium Mercuric Iodide): Cream / Pale yellow precipitate.
+• <strong>Dragendorff’s Reagent</strong> (Potassium Bismuth Iodide): Orange to reddish-brown precipitate.
+• <strong>Wagner’s Reagent</strong> (Iodine in Potassium Iodide): Reddish-brown precipitate.
+• <strong>Hager’s Reagent</strong> (Saturated solution of Picric Acid): Bright yellow precipitate.`
+          },
+          {
+            heading: '2. Cardiac Glycosides (Digitalis Purpurea & Lanata)',
+            content: `Consist of an aglycone (genin) steroid nucleus linked to a lactone ring and specific sugars (e.g., Digitoxose).
+• <strong>Mechanism:</strong> Inhibits myocardial Na+/K+-ATPase pump, increasing intracellular Calcium, producing positive inotropic force in heart failure.
+• <strong>Keller-Kiliani Test:</strong> Drug extract + Acetic acid containing FeCl3 + concentrated H2SO4 carefully along test tube wall.
+  <em>Result:</em> Reddish-brown ring at the interface; upper acetic layer turns bluish-green, confirming digitoxose sugar.`
+          }
+        ],
+        vivaPoints: [
+          'Name an alkaloid that does not contain nitrogen in a heterocyclic ring: Answer: Ephedrine / Colchicine (Protoalkaloids).',
+          'Specific identification test for Tropane alkaloids? Answer: Vitali-Morin test (violet color with fuming HNO3 and alcoholic KOH).',
+          'Antidote for Digoxin toxicity? Answer: Digoxin-specific Fab antibody fragments (DigiFab).'
+        ]
+      },
+      {
+        id: 'note-5',
+        title: 'Sterilization Techniques & Autoclave Validation in Pharmacy',
+        subject: 'Pharmaceutics',
+        readTime: '5 min',
+        tags: ['Sterility', 'Autoclaving', 'Microbiology', 'Injectables', 'Parenterals'],
+        summary: 'Moist heat vs dry heat sterilization kinetics, D-value, Z-value, F0 calculation, and biological indicators for parenterals preparation.',
+        sections: [
+          {
+            heading: '1. Moist Heat vs Dry Heat Sterilization',
+            content: `• <strong>Moist Heat (Autoclave):</strong> Coagulates and denatures essential cell proteins.
+  - Standard operating cycle: <strong>121°C (250°F) at 15 psi (103 kPa) for 15 minutes</strong>.
+  - Ideal for aqueous solutions, surgical dressings, and thermostable rubber closures.
+• <strong>Dry Heat (Hot Air Oven):</strong> Oxidative destruction of bacterial components.
+  - Conditions: <strong>160°C for 2 hours</strong> or 170°C for 1 hour.
+  - Required for depyrogenation of glassware, oily preparations, and powders that would cake in steam.`
+          },
+          {
+            heading: '2. Biological & Chemical Indicators for Validation',
+            content: `• <strong>Autoclave:</strong> <em>Geobacillus stearothermophilus</em> spores (incubated at 55–60°C).
+• <strong>Hot Air Oven / Radiation:</strong> <em>Bacillus atrophaeus</em> (formerly <em>Bacillus subtilis</em>).
+• <strong>Ethylene Oxide (EtO) gas:</strong> <em>Bacillus atrophaeus</em> spores.
+• <strong>Chemical indicators:</strong> Browne’s tubes, Bowie-Dick tape for steam penetration.`
+          }
+        ],
+        vivaPoints: [
+          'What is the D-value in sterilization? Answer: The time in minutes required at a given temperature to reduce microbial population by 90% (1-log reduction).',
+          'Minimum temperature for depyrogenation of ampoules? Answer: 250°C for 30 minutes.'
+        ]
+      },
+      {
+        id: 'note-6',
+        title: 'National Immunization Schedule & Cold Chain Management',
+        subject: 'Social Pharmacy',
+        readTime: '7 min',
+        tags: ['Vaccines', 'Immunization', 'Cold Chain', 'Public Health', 'Epidemiology'],
+        summary: 'Essential cold chain equipment (+2°C to +8°C), live attenuated vs killed vaccines, universal immunization schedule, and adverse events following immunization (AEFI).',
+        sections: [
+          {
+            heading: '1. Cold Chain Temperature Requirements',
+            content: `To maintain vaccine potency from manufacturer to field:
+• Most vaccines (BCG, DPT, Hepatitis B, Pentavalent, Tetanus, Rotavirus, Measles-Rubella): Stored strictly between <strong>+2°C and +8°C</strong>.
+• Oral Polio Vaccine (OPV) and yellow fever: Long-term storage at <strong>-15°C to -25°C</strong> (deep freezer at state/regional depots).
+• <strong>VVM (Vaccine Vial Monitor):</strong> Heat-sensitive color indicator on the label. If the inner square is lighter than the outer circle, the vaccine is safe to administer.`
+          },
+          {
+            heading: '2. Key Schedule Highlights at Birth',
+            content: `• <strong>BCG:</strong> 0.05 ml (Intradermal at birth) on left upper arm to prevent childhood tuberculosis meningitis.
+• <strong>OPV-0:</strong> 2 drops (Oral).
+• <strong>Hepatitis B birth dose:</strong> 0.5 ml (Intramuscular on anterolateral mid-thigh within 24 hours of birth).`
+          }
+        ],
+        vivaPoints: [
+          'Which vaccines are damaged by freezing? Answer: T-series vaccines (Tetanus, DPT, Hep B, Pentavalent). Never place in freezer!',
+          'What does stage 3/4 of a Vaccine Vial Monitor indicate? Answer: Inner square matches or is darker than outer ring; vaccine must be discarded.'
+        ]
+      }
+    ];
+
+    // DRUG & MEDICAL TERMINOLOGY REPOSITORY
+    const DICTIONARY_DATA = [
+      { term: 'Atenolol', category: 'Pharmacology', definition: 'Cardioselective Beta-1 adrenergic blocker without intrinsic sympathomimetic activity.', notes: 'Decreases heart rate & BP. Monitor for bradycardia, bronchospasm in high doses.' },
+      { term: 'Metformin', category: 'Pharmacology', definition: 'Biguanide antihyperglycemic agent that activates AMP-activated protein kinase (AMPK).', notes: 'First-line for Type 2 Diabetes; does not cause hypoglycemia. Risk of lactic acidosis in renal failure.' },
+      { term: 'Bioavailability (F)', category: 'Pharmaceutics', definition: 'Fraction of an administered dose of unchanged drug that reaches systemic circulation.', notes: 'F = 100% (1.0) for intravenous administration. Calculated via Area Under Curve (AUC).' },
+      { term: 'Atropine', category: 'Pharmacology', definition: 'Competitive antagonist of muscarinic acetylcholine receptors (M1, M2, M3).', notes: 'Used in organophosphate poisoning and symptomatic bradycardia. Causes dry mouth and mydriasis.' },
+      { term: 'Omeprazole', category: 'Pharmaceutics & Med Chem', definition: 'Proton Pump Inhibitor (PPI) that irreversibly inhibits H+/K+-ATPase in gastric parietal cells.', notes: 'Formulated with enteric coating to protect drug from degradation by gastric acid.' },
+      { term: 'Ciprofloxacin', category: 'Pharmacology', definition: 'Fluoroquinolone antibacterial agent that inhibits bacterial DNA gyrase and Topoisomerase IV.', notes: 'Contraindicated with milk/antacids (forms non-absorbable chelates with Ca2+/Mg2+/Al3+).' },
+      { term: 'HLB Value', category: 'Pharmaceutics', definition: 'Hydrophilic-Lipophilic Balance system scale (0-20) indicating surfactant characteristics.', notes: 'HLB 3-6: W/O emulsifier; HLB 8-16: O/W emulsifier; HLB 13-15: Detergents; HLB 16-18: Solubilizers.' },
+      { term: 'First-Pass Effect', category: 'Human Anatomy & Physiology', definition: 'Metabolic degradation of orally absorbed drugs in the intestinal gut wall or liver before reaching systemic circulation.', notes: 'High first-pass drugs (e.g., Nitroglycerin, Propranolol) have much lower oral vs sublingual/IV doses.' },
+      { term: 'Curcumin', category: 'Pharmacognosy', definition: 'Diarylheptanoid polyphenolic constituent isolated from Curcuma longa rhizomes.', notes: 'Demonstrates potent anti-inflammatory, antioxidant, and wound-healing properties.' },
+      { term: 'Teratogenicity', category: 'Pharmacology & Toxicology', definition: 'Capacity of an exogenous agent or drug to cause congenital abnormalities in a developing fetus.', notes: 'Classic example: Thalidomide (phocomelia/seal limbs). Category X drugs are absolute contraindications.' }
+    ];
+
+    // INTERACTIVE QUIZ DATA
+    const QUIZ_QUESTIONS = [
+      {
+        subject: 'Pharmaceutics',
+        question: 'Which tableting defect occurs when the top or bottom crown separates from the main tablet body during ejection?',
+        options: ['Mottling', 'Capping', 'Picking', 'Chipping'],
+        correctIndex: 1,
+        explanation: 'Capping is caused primarily by entrapped air in fine granules, improper punch clearance, or excessively dry granulations.'
+      },
+      {
+        subject: 'Pharmacology',
+        question: 'What is the specific antidote for acute acetaminophen (paracetamol) hepatotoxicity?',
+        options: ['Naloxone', 'Flumazenil', 'N-acetylcysteine (NAC)', 'Protamine sulfate'],
+        correctIndex: 2,
+        explanation: 'N-acetylcysteine restores hepatic glutathione (GSH) reserves, which conjugates and neutralizes the toxic metabolite NAPQI.'
+      },
+      {
+        subject: 'Pharmacognosy',
+        question: 'Which chemical reagent produces an orange or reddish-brown precipitate with true alkaloids?',
+        options: ['Dragendorff’s reagent', 'Biuret reagent', 'Benedict’s solution', 'Keller-Kiliani test'],
+        correctIndex: 0,
+        explanation: 'Dragendorff’s reagent is potassium bismuth iodide solution, specific for precipitating alkaloids with a distinct orange/red hue.'
+      },
+      {
+        subject: 'Social Pharmacy',
+        question: 'What is the recommended storage temperature range for the vast majority of vaccines in the cold chain?',
+        options: ['-10°C to -2°C', '+2°C to +8°C', '+15°C to +25°C', '0°C to +4°C only'],
+        correctIndex: 1,
+        explanation: 'The standard cold chain temperature for maintaining vaccine potency without freezing injury is +2°C to +8°C.'
+      },
+      {
+        subject: 'Human Anatomy & Physiology',
+        question: 'Which receptor subtype is predominantly responsible for increasing heart rate and contractility upon sympathetic stimulation?',
+        options: ['Alpha-1 adrenergic', 'Beta-1 adrenergic', 'Muscarinic M2', 'Nicotinic Nm'],
+        correctIndex: 1,
+        explanation: 'Beta-1 adrenergic receptors are located primarily in cardiac pacemaker nodes and ventricular myocardium, stimulating cAMP via Gs.'
+      }
+    ];
+
+    let currentCategory = 'All';
+    let currentActiveNote = null;
+    let savedBookmarks = JSON.parse(localStorage.getItem('pharma_bookmarks') || '[]');
+    let customUserNotes = JSON.parse(localStorage.getItem('pharma_custom_notes') || '[]');
+    let currentQuizIndex = 0;
+    let quizScore = 0;
+    let answeredQuestions = {};
+
+    // Get all unique categories
+    const ALL_CATEGORIES = ['All', 'Pharmaceutics', 'Pharmacology', 'Human Anatomy & Physiology', 'Pharmacognosy', 'Social Pharmacy'];
+
+    function init() {
+      renderCategoryChips();
+      renderNotes();
+      renderDictionary();
+      renderQuizQuestion();
+      renderCustomNotes();
+      renderBookmarkedNotes();
+
+      // Check system or saved dark mode preference
+      if (localStorage.getItem('pharma_theme') === 'dark' || 
+          (!('pharma_theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    }
+
+    function toggleDarkMode() {
+      const isDark = document.documentElement.classList.toggle('dark');
+      localStorage.setItem('pharma_theme', isDark ? 'dark' : 'light');
+      showToast(isDark ? 'Switched to Dark Mode' : 'Switched to Light Mode', 'fa-moon');
+    }
+
+    function switchTab(tabId) {
+      ['notes', 'dictionary', 'quiz', 'custom'].forEach(t => {
+        const el = document.getElementById(`tab-${t}`);
+        const navBtn = document.getElementById(`nav-btn-${t}`);
+        const mNavBtn = document.getElementById(`m-nav-${t}`);
+        if (el) el.classList.toggle('hidden', t !== tabId);
+
+        if (navBtn) {
+          if (t === tabId) {
+            navBtn.className = "px-4 py-1.5 rounded-lg text-sm font-semibold transition-all text-white bg-teal-600 shadow-sm flex items-center gap-2";
+          } else {
+            navBtn.className = "px-4 py-1.5 rounded-lg text-sm font-semibold transition-all text-slate-600 dark:text-slate-300 hover:text-teal-600 dark:hover:text-teal-400 flex items-center gap-2";
+          }
+        }
+        if (mNavBtn) {
+          mNavBtn.className = (t === tabId) ? "text-teal-600 font-semibold p-2 flex flex-col items-center" : "text-slate-500 font-medium p-2 flex flex-col items-center";
+        }
+      });
+    }
+
+    function renderCategoryChips() {
+      const container = document.getElementById('categoryChipsContainer');
+      container.innerHTML = ALL_CATEGORIES.map(cat => {
+        const active = (cat === currentCategory);
+        return `
+          <button onclick="setCategory('${cat}')" 
+            class="px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
+              active 
+                ? 'bg-teal-600 text-white shadow-sm shadow-teal-500/30' 
+                : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-800 hover:border-teal-400'
+            }">
+            ${cat}
+          </button>
+        `;
+      }).join('');
+    }
+
+    function setCategory(cat) {
+      currentCategory = cat;
+      renderCategoryChips();
+      renderNotes();
+    }
+
+    function renderNotes() {
+      const query = (document.getElementById('noteSearchInput').value || '').trim().toLowerCase();
+      const grid = document.getElementById('notesGrid');
+      const emptyMsg = document.getElementById('emptyNotesMsg');
+      const countEl = document.getElementById('notesCount');
+
+      const filtered = MASTER_NOTES.filter(note => {
+        const matchesCategory = (currentCategory === 'All' || note.subject === currentCategory);
+        const matchesQuery = !query || 
+          note.title.toLowerCase().includes(query) ||
+          note.subject.toLowerCase().includes(query) ||
+          note.summary.toLowerCase().includes(query) ||
+          note.tags.some(t => t.toLowerCase().includes(query));
+        return matchesCategory && matchesQuery;
+      });
+
+      countEl.innerText = filtered.length;
+
+      if (filtered.length === 0) {
+        grid.innerHTML = '';
+        emptyMsg.classList.remove('hidden');
+        return;
+      }
+
+      emptyMsg.classList.add('hidden');
+      grid.innerHTML = filtered.map(note => {
+        const isBookmarked = savedBookmarks.includes(note.id);
+        const tagBadges = note.tags.slice(0, 3).map(tag => 
+          `<span class="text-[10px] px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-medium">#${tag}</span>`
+        ).join('');
+
+        return `
+          <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 hover:border-teal-500/60 dark:hover:border-teal-500/60 transition-all duration-200 shadow-sm hover:shadow-md flex flex-col justify-between group">
+            <div>
+              <div class="flex items-center justify-between gap-2 mb-3">
+                <span class="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-teal-50 dark:bg-teal-950/60 text-teal-700 dark:text-teal-300 border border-teal-200/60 dark:border-teal-800">
+                  ${note.subject}
+                </span>
+                <button onclick="toggleBookmark('${note.id}', event)" class="text-slate-400 hover:text-amber-500 transition p-1">
+                  <i class="${isBookmarked ? 'fa-solid fa-bookmark text-amber-500' : 'fa-regular fa-bookmark'}"></i>
+                </button>
+              </div>
+
+              <h3 class="text-base font-bold text-slate-900 dark:text-white group-hover:text-teal-600 dark:group-hover:text-teal-400 transition mb-2">
+                ${note.title}
+              </h3>
+
+              <p class="text-xs text-slate-500 dark:text-slate-400 line-clamp-3 leading-relaxed mb-4">
+                ${note.summary}
+              </p>
+
+              <div class="flex flex-wrap gap-1.5 mb-4">
+                ${tagBadges}
+              </div>
+            </div>
+
+            <div class="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
+              <span class="text-[11px] text-slate-400 flex items-center gap-1 font-medium">
+                <i class="fa-regular fa-clock"></i> ${note.readTime}
+              </span>
+              <button onclick="openNoteModal('${note.id}')" class="text-xs font-semibold text-teal-600 dark:text-teal-400 hover:underline flex items-center gap-1">
+                Read Full Note <i class="fa-solid fa-chevron-right text-[10px]"></i>
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function filterNotes() {
+      const val = document.getElementById('noteSearchInput').value;
+      document.getElementById('clearSearchBtn').classList.toggle('hidden', !val);
+      renderNotes();
+    }
+
+    function clearSearch() {
+      document.getElementById('noteSearchInput').value = '';
+      document.getElementById('clearSearchBtn').classList.add('hidden');
+      renderNotes();
+    }
+
+    function resetFilters() {
+      currentCategory = 'All';
+      clearSearch();
+      renderCategoryChips();
+    }
+
+    function openNoteModal(noteId) {
+      const note = MASTER_NOTES.find(n => n.id === noteId);
+      if (!note) return;
+
+      currentActiveNote = note;
+      document.getElementById('modalSubject').innerText = note.subject;
+      document.getElementById('modalTitle').innerText = note.title;
+      document.getElementById('modalReadTime').innerHTML = `<i class="fa-regular fa-clock"></i> ${note.readTime}`;
+
+      // Update bookmark state inside modal
+      updateModalBookmarkButton();
+
+      // Render modal body sections
+      let html = `<p class="italic text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/60 p-3.5 rounded-xl border border-slate-200 dark:border-slate-800">${note.summary}</p>`;
+
+      note.sections.forEach(sec => {
+        html += `
+          <div class="space-y-2">
+            <h4 class="text-base font-bold text-slate-900 dark:text-white text-teal-700 dark:text-teal-300">${sec.heading}</h4>
+            <div class="text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-line text-sm">${sec.content}</div>
+          </div>
+        `;
+      });
+
+      if (note.vivaPoints && note.vivaPoints.length > 0) {
+        html += `
+          <div class="mt-6 p-4 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800">
+            <h4 class="font-bold text-amber-900 dark:text-amber-300 flex items-center gap-2 mb-2">
+              <i class="fa-solid fa-lightbulb"></i> Rapid Viva Voce Highlights
+            </h4>
+            <ul class="list-disc list-inside space-y-1.5 text-xs text-amber-900 dark:text-amber-200 font-medium">
+              ${note.vivaPoints.map(p => `<li>${p}</li>`).join('')}
+            </ul>
+          </div>
+        `;
+      }
+
+      document.getElementById('modalBody').innerHTML = html;
+      document.getElementById('noteModal').classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeNoteModal() {
+      document.getElementById('noteModal').classList.add('hidden');
+      document.body.style.overflow = 'auto';
+      currentActiveNote = null;
+    }
+
+    function toggleBookmark(noteId, event) {
+      if (event) event.stopPropagation();
+      const index = savedBookmarks.indexOf(noteId);
+      if (index === -1) {
+        savedBookmarks.push(noteId);
+        showToast('Saved to My Bookmarks', 'fa-bookmark');
+      } else {
+        savedBookmarks.splice(index, 1);
+        showToast('Removed from Bookmarks', 'fa-trash');
+      }
+      localStorage.setItem('pharma_bookmarks', JSON.stringify(savedBookmarks));
+      renderNotes();
+      renderBookmarkedNotes();
+      updateModalBookmarkButton();
+    }
+
+    function toggleModalBookmark() {
+      if (!currentActiveNote) return;
+      toggleBookmark(currentActiveNote.id);
+    }
+
+    function updateModalBookmarkButton() {
+      if (!currentActiveNote) return;
+      const isBookmarked = savedBookmarks.includes(currentActiveNote.id);
+      const btn = document.getElementById('modalBookmarkBtn');
+      if (btn) {
+        btn.innerHTML = `<i class="${isBookmarked ? 'fa-solid fa-bookmark text-amber-500' : 'fa-regular fa-bookmark'}"></i> ${isBookmarked ? 'Bookmarked' : 'Bookmark'}`;
+      }
+    }
+
+    function copyCurrentNote() {
+      if (!currentActiveNote) return;
+      let text = `${currentActiveNote.title} (${currentActiveNote.subject})\n\n${currentActiveNote.summary}\n\n`;
+      currentActiveNote.sections.forEach(s => {
+        text += `${s.heading}\n${s.content.replace(/<[^>]*>?/gm, '')}\n\n`;
+      });
+      if (currentActiveNote.vivaPoints) {
+        text += `Viva Highlights:\n` + currentActiveNote.vivaPoints.join('\n');
+      }
+
+      // Safe fallback clipboard copy
+      const tempTextArea = document.createElement("textarea");
+      tempTextArea.value = text;
+      document.body.appendChild(tempTextArea);
+      tempTextArea.select();
+      try {
+        document.execCommand('copy');
+        showToast('Note copied to clipboard!', 'fa-copy');
+      } catch (err) {
+        showToast('Could not copy automatically', 'fa-triangle-exclamation');
+      }
+      document.body.removeChild(tempTextArea);
+    }
+
+    function printModalNote() {
+      if (!currentActiveNote) return;
+      const printContent = document.getElementById('printContent');
+      let html = `
+        <h1 style="font-size:24px; font-weight:bold; margin-bottom:4px;">${currentActiveNote.title}</h1>
+        <p style="color:#666; font-size:12px; margin-bottom:16px;">PharmaMed Revision Library • Subject: ${currentActiveNote.subject}</p>
+        <hr style="margin-bottom:16px;" />
+        <p style="margin-bottom:16px; font-style:italic;">${currentActiveNote.summary}</p>
+      `;
+
+      currentActiveNote.sections.forEach(s => {
+        html += `<h3 style="font-size:16px; font-weight:bold; margin-top:16px; margin-bottom:8px;">${s.heading}</h3>`;
+        html += `<div style="font-size:13px; line-height:1.6;">${s.content}</div>`;
+      });
+
+      if (currentActiveNote.vivaPoints) {
+        html += `<h3 style="font-size:16px; font-weight:bold; margin-top:16px;">Viva Voce Key Notes</h3><ul>`;
+        currentActiveNote.vivaPoints.forEach(p => {
+          html += `<li style="font-size:13px; margin-bottom:4px;">${p}</li>`;
+        });
+        html += `</ul>`;
+      }
+
+      printContent.innerHTML = html;
+      window.print();
+    }
+
+    function renderDictionary() {
+      const q = (document.getElementById('dictSearchInput').value || '').toLowerCase();
+      const tbody = document.getElementById('dictionaryBody');
+      const filtered = DICTIONARY_DATA.filter(item => 
+        !q || 
+        item.term.toLowerCase().includes(q) || 
+        item.category.toLowerCase().includes(q) || 
+        item.definition.toLowerCase().includes(q) ||
+        item.notes.toLowerCase().includes(q)
+      );
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="text-center py-6 text-slate-400">No medical terms or drugs matched.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = filtered.map(item => `
+        <tr class="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition">
+          <td class="p-3.5 font-bold text-slate-900 dark:text-white">${item.term}</td>
+          <td class="p-3.5"><span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">${item.category}</span></td>
+          <td class="p-3.5 text-xs text-slate-700 dark:text-slate-300">${item.definition}</td>
+          <td class="p-3.5 text-xs text-amber-700 dark:text-amber-400 font-mono">${item.notes}</td>
+          <td class="p-3.5 text-center">
+            <button onclick="copyDictionaryItem('${item.term}: ${item.definition}')" class="p-1.5 text-slate-400 hover:text-teal-600 rounded">
+              <i class="fa-regular fa-copy"></i>
+            </button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function filterDictionary() {
+      renderDictionary();
+    }
+
+    function copyDictionaryItem(text) {
+      const tempTextArea = document.createElement("textarea");
+      tempTextArea.value = text;
+      document.body.appendChild(tempTextArea);
+      tempTextArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(tempTextArea);
+      showToast('Term summary copied!', 'fa-check');
+    }
+
+    function renderQuizQuestion() {
+      const q = QUIZ_QUESTIONS[currentQuizIndex];
+      document.getElementById('quizCounter').innerText = `Question ${currentQuizIndex + 1} of ${QUIZ_QUESTIONS.length}`;
+      document.getElementById('quizCategoryBadge').innerText = q.subject;
+      document.getElementById('quizQuestion').innerText = q.question;
+
+      const optsContainer = document.getElementById('quizOptions');
+      const expBox = document.getElementById('quizExplanation');
+      const answered = answeredQuestions[currentQuizIndex];
+
+      optsContainer.innerHTML = q.options.map((opt, idx) => {
+        let btnStyle = "w-full text-left p-4 rounded-xl border text-sm font-medium transition-all flex items-center justify-between ";
+        if (answered !== undefined) {
+          if (idx === q.correctIndex) {
+            btnStyle += "bg-emerald-50 dark:bg-emerald-950/60 border-emerald-500 text-emerald-800 dark:text-emerald-200 font-bold";
+          } else if (idx === answered) {
+            btnStyle += "bg-rose-50 dark:bg-rose-950/60 border-rose-500 text-rose-800 dark:text-rose-200 line-through";
+          } else {
+            btnStyle += "bg-slate-50 dark:bg-slate-800/40 border-slate-200 dark:border-slate-700 text-slate-400 opacity-60";
+          }
+        } else {
+          btnStyle += "bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:border-teal-500 hover:bg-teal-50/40 dark:hover:bg-teal-950/20";
+        }
+
+        return `
+          <button onclick="handleOptionSelect(${idx})" ${answered !== undefined ? 'disabled' : ''} class="${btnStyle}">
+            <span><strong class="mr-2">${String.fromCharCode(65 + idx)}.</strong> ${opt}</span>
+            ${answered !== undefined && idx === q.correctIndex ? '<i class="fa-solid fa-circle-check text-emerald-500"></i>' : ''}
+            ${answered !== undefined && idx === answered && idx !== q.correctIndex ? '<i class="fa-solid fa-circle-xmark text-rose-500"></i>' : ''}
+          </button>
+        `;
+      }).join('');
+
+      if (answered !== undefined) {
+        expBox.classList.remove('hidden');
+        const isRight = (answered === q.correctIndex);
+        expBox.className = `mt-6 p-4 rounded-xl text-xs sm:text-sm leading-relaxed border ${
+          isRight 
+            ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-800 text-emerald-900 dark:text-emerald-200' 
+            : 'bg-amber-50 dark:bg-amber-950/40 border-amber-300 dark:border-amber-800 text-amber-900 dark:text-amber-200'
+        }`;
+        expBox.innerHTML = `<strong>${isRight ? '🎉 Correct!' : '⚠️ Incorrect.'}</strong> ${q.explanation}`;
+      } else {
+        expBox.classList.add('hidden');
+      }
+
+      document.getElementById('prevQuizBtn').disabled = (currentQuizIndex === 0);
+      document.getElementById('quizTotal').innerText = Object.keys(answeredQuestions).length;
+      document.getElementById('quizScore').innerText = quizScore;
+    }
+
+    function handleOptionSelect(idx) {
+      if (answeredQuestions[currentQuizIndex] !== undefined) return;
+      answeredQuestions[currentQuizIndex] = idx;
+      if (idx === QUIZ_QUESTIONS[currentQuizIndex].correctIndex) {
+        quizScore++;
+        showToast('Correct answer! +1 point', 'fa-circle-check');
+      } else {
+        showToast('Incorrect answer. Check explanation.', 'fa-circle-xmark');
+      }
+      renderQuizQuestion();
+    }
+
+    function nextQuizQuestion() {
+      if (currentQuizIndex < QUIZ_QUESTIONS.length - 1) {
+        currentQuizIndex++;
+        renderQuizQuestion();
+      } else {
+        showToast(`Quiz completed! Final score: ${quizScore}/${QUIZ_QUESTIONS.length}`, 'fa-trophy');
+      }
+    }
+
+    function prevQuizQuestion() {
+      if (currentQuizIndex > 0) {
+        currentQuizIndex--;
+        renderQuizQuestion();
+      }
+    }
+
+    function resetQuizScore() {
+      quizScore = 0;
+      currentQuizIndex = 0;
+      answeredQuestions = {};
+      renderQuizQuestion();
+      showToast('Quiz reset', 'fa-rotate-right');
+    }
+
+    function renderBookmarkedNotes() {
+      const grid = document.getElementById('bookmarkedNotesGrid');
+      const empty = document.getElementById('noBookmarksMsg');
+      const bookmarkedList = MASTER_NOTES.filter(n => savedBookmarks.includes(n.id));
+
+      if (bookmarkedList.length === 0) {
+        grid.innerHTML = '';
+        empty.classList.remove('hidden');
+        return;
+      }
+
+      empty.classList.add('hidden');
+      grid.innerHTML = bookmarkedList.map(n => `
+        <div class="bg-white dark:bg-slate-900 rounded-xl p-4 border border-slate-200 dark:border-slate-800 flex flex-col justify-between shadow-sm">
+          <div>
+            <div class="flex items-center justify-between text-xs mb-1">
+              <span class="font-bold text-teal-600">${n.subject}</span>
+              <button onclick="toggleBookmark('${n.id}', event)" class="text-amber-500 hover:text-slate-400">
+                <i class="fa-solid fa-bookmark"></i>
+              </button>
+            </div>
+            <h4 class="font-bold text-sm text-slate-800 dark:text-slate-100">${n.title}</h4>
+            <p class="text-xs text-slate-500 mt-1 line-clamp-2">${n.summary}</p>
+          </div>
+          <button onclick="openNoteModal('${n.id}')" class="mt-3 text-xs font-semibold text-teal-600 hover:underline text-left">
+            Open Note →
+          </button>
+        </div>
+      `).join('');
+    }
+
+    function renderCustomNotes() {
+      const grid = document.getElementById('customNotesGrid');
+      const empty = document.getElementById('noCustomNotesMsg');
+      const count = document.getElementById('customNotesCount');
+      count.innerText = customUserNotes.length;
+
+      if (customUserNotes.length === 0) {
+        grid.innerHTML = '';
+        empty.classList.remove('hidden');
+        return;
+      }
+
+      empty.classList.add('hidden');
+      grid.innerHTML = customUserNotes.map((cn, i) => `
+        <div class="bg-white dark:bg-slate-900 rounded-xl p-5 border border-slate-200 dark:border-slate-800 flex flex-col justify-between shadow-sm relative group">
+          <div>
+            <div class="flex items-center justify-between text-xs mb-2">
+              <span class="font-semibold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">${cn.subject}</span>
+              <button onclick="deleteCustomNote(${i})" class="text-slate-400 hover:text-rose-500 transition">
+                <i class="fa-solid fa-trash-can"></i>
+              </button>
+            </div>
+            <h4 class="font-bold text-sm text-slate-900 dark:text-white">${cn.title}</h4>
+            <p class="text-xs text-slate-600 dark:text-slate-400 mt-2 whitespace-pre-wrap leading-relaxed">${cn.content}</p>
+          </div>
+          <div class="mt-4 pt-2 border-t border-slate-100 dark:border-slate-800 text-[10px] text-slate-400 flex justify-between items-center">
+            <span>${cn.date}</span>
+            <span>${cn.tags ? '#' + cn.tags.split(',').join(' #') : ''}</span>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function openNoteCreatorModal() {
+      document.getElementById('customNoteModal').classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeNoteCreatorModal() {
+      document.getElementById('customNoteModal').classList.add('hidden');
+      document.body.style.overflow = 'auto';
+      document.getElementById('customNoteForm').reset();
+    }
+
+    function handleSaveCustomNote(e) {
+      e.preventDefault();
+      const subject = document.getElementById('customSubject').value;
+      const title = document.getElementById('customTitle').value.trim();
+      const tags = document.getElementById('customTags').value.trim();
+      const content = document.getElementById('customContent').value.trim();
+
+      const newNote = {
+        subject,
+        title,
+        tags,
+        content,
+        date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+      };
+
+      customUserNotes.unshift(newNote);
+      localStorage.setItem('pharma_custom_notes', JSON.stringify(customUserNotes));
+      closeNoteCreatorModal();
+      renderCustomNotes();
+      switchTab('custom');
+      showToast('Custom note saved successfully!', 'fa-floppy-disk');
+    }
+
+    function deleteCustomNote(index) {
+      customUserNotes.splice(index, 1);
+      localStorage.setItem('pharma_custom_notes', JSON.stringify(customUserNotes));
+      renderCustomNotes();
+      showToast('Note deleted', 'fa-trash');
+    }
+
+    function showToast(message, iconClass = 'fa-circle-check') {
+      const toast = document.getElementById('toast');
+      const toastMsg = document.getElementById('toastMsg');
+      const toastIcon = document.getElementById('toastIcon');
+
+      toastMsg.innerText = message;
+      toastIcon.className = `fa-solid ${iconClass} text-teal-400 text-sm`;
+
+      toast.classList.remove('translate-y-20', 'opacity-0');
+      toast.classList.add('translate-y-0', 'opacity-100');
+
+      clearTimeout(window.toastTimer);
+      window.toastTimer = setTimeout(() => {
+        toast.classList.remove('translate-y-0', 'opacity-100');
+        toast.classList.add('translate-y-20', 'opacity-0');
+      }, 2500);
+    }
+
+    // Initialize application on load
+    window.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>
