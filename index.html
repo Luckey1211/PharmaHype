@@ -1,645 +1,1453 @@
 <!DOCTYPE html>
 <html lang="hi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PharmaHype - D.Pharm Study Portal</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        medical: {
-                            teal: '#0e7490',
-                            light: '#0891b2',
-                            bg: '#f8fafc',
-                            card: '#ffffff',
-                            text: '#1e293b',
-                            muted: '#64748b'
-                        },
-                        dark: {
-                            bg: '#0f172a',
-                            card: '#1e293b',
-                            text: '#f1f5f9',
-                            muted: '#94a3b8'
-                        }
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background-color: #94a3b8; }
-        .dark .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #334155; }
-        .dark .custom-scrollbar::-webkit-scrollbar-thumb:hover { background-color: #475569; }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PharmaHype - D.Pharm Study Portal</title>
+  <style>
+    :root {
+      --medical-teal: #0e7490;
+      --medical-light: #0891b2;
+      --medical-bg: #f8fafc;
+      --medical-card: #ffffff;
+      --medical-text: #1e293b;
+      --medical-muted: #64748b;
+      --slate-200: #e2e8f0;
+      --slate-300: #cbd5e1;
+      --slate-600: #475569;
+      --slate-700: #334155;
+      --amber-100: #fef3c7;
+      --amber-500: #f59e0b;
+      --amber-700: #b45309;
+      --cyan-100: #cffafe;
+      --cyan-500: #06b6d4;
+      --cyan-600: #0891b2;
+      --white: #ffffff;
+      --dark-bg: #0f172a;
+      --dark-card: #1e293b;
+      --dark-text: #f1f5f9;
+      --dark-muted: #94a3b8;
+      --theme-intensity: 0.5;
+      --primary-color: #0d9488;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: rgba(243, 244, 246, var(--theme-intensity));
+      color: var(--medical-text);
+      transition: background 0.3s ease, color 0.3s ease;
+    }
+
+    body.dark {
+      background: var(--dark-bg);
+      color: var(--dark-text);
+    }
+    body.settings-preview { font-family: var(--settings-font, Arial, sans-serif); }
+    body.settings-preview:not(.dark) { background: rgba(243, 244, 246, var(--theme-intensity)); }
+    body.settings-preview .header,
+    body.settings-preview .section-divider,
+    body.settings-preview .progress-fill,
+    body.settings-preview .timer-btn.primary { background-color: var(--primary-color); }
+    body.settings-preview .course-card:hover,
+    body.settings-preview .subject-card:hover,
+    body.settings-preview .chapter-card:hover { border-color: var(--primary-color); }
+    body.settings-preview .course-card .cta,
+    body.settings-preview .meta-item,
+    body.settings-preview .timer-display,
+    body.settings-preview .back-link { color: var(--primary-color); }
+
+    a, button, input { font: inherit; }
+
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+    .header {
+      background: var(--medical-teal);
+      color: white;
+      box-shadow: 0 10px 18px rgba(8, 145, 178, 0.12);
+      margin-bottom: 30px;
+    }
+    body.dark .header { background: var(--dark-card); }
+    .header-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 24px 0;
+    }
+    .header h1 {
+      margin: 0 0 8px;
+      font-size: clamp(2rem, 3vw, 2.8rem);
+      font-weight: 800;
+      letter-spacing: -0.04em;
+    }
+    .header p {
+      margin: 0;
+      color: var(--cyan-100);
+      font-size: 1.02rem;
+      font-weight: 600;
+    }
+    .theme-btn {
+      width: 48px; height: 48px; border: none; border-radius: 50%;
+      background: var(--cyan-600); color: white; font-size: 1.2rem; cursor: pointer;
+      transition: 0.2s ease;
+    }
+    .theme-btn:hover { background: #0a6d8b; }
+    .settings-btn {
+      width: 48px; height: 48px; border: 1px solid rgba(255,255,255,0.35); border-radius: 50%;
+      background: transparent; color: white; font-size: 1.25rem; cursor: pointer;
+    }
+    .header-actions { display: flex; gap: 10px; }
+    .account-btn {
+      border: 1px solid rgba(255,255,255,0.35); border-radius: 999px; padding: 0 16px;
+      background: transparent; color: white; cursor: pointer; font-weight: 700;
+    }
+
+    .page-shell { padding-bottom: 50px; }
+
+    .breadcrumbs {
+      color: var(--medical-muted);
+      font-size: 0.9rem;
+      display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 0 auto 24px; max-width: 1200px; padding: 0 24px;
+    }
+    body.dark .breadcrumbs { color: var(--dark-muted); }
+    .breadcrumbs button {
+      border: none; background: transparent; color: inherit; cursor: pointer; font-weight: 600;
+      padding: 0;
+    }
+    .breadcrumbs .crumb-sep { color: var(--slate-300); }
+    body.dark .breadcrumbs .crumb-sep { color: var(--slate-600); }
+
+    .section-title {
+      text-align: center; margin-bottom: 38px;
+    }
+    .section-title h2 {
+      margin: 0 0 14px; font-size: clamp(2rem, 2.4vw, 2.7rem);
+    }
+    .section-divider {
+      width: 92px; height: 5px; background: var(--medical-teal); border-radius: 999px; margin: 0 auto;
+    }
+    body.dark .section-divider { background: var(--cyan-500); }
+    .dashboard { max-width: 1200px; margin: 0 auto; padding: 0 24px 50px; display: grid; gap: 28px; }
+    .dashboard-hero {
+      background: linear-gradient(135deg, #0d9488 0%, #0284c7 100%);
+      color: white; border-radius: 28px; padding: 30px; display: flex; align-items: center;
+      justify-content: space-between; gap: 24px; box-shadow: 0 16px 30px rgba(2, 132, 199, 0.18);
+    }
+    .dashboard-hero h2 { margin: 0; font-size: clamp(1.8rem, 3vw, 2.4rem); }
+    .dashboard-hero p { margin: 8px 0 0; color: #ccfbf1; }
+    .streak-badge {
+      width: 112px; height: 112px; border-radius: 50%; background: rgba(255,255,255,0.2);
+      display: grid; place-items: center; align-content: center; flex-shrink: 0;
+    }
+    .streak-badge strong { font-size: 2.5rem; line-height: 1; }
+    .streak-badge span { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; margin-top: 6px; }
+    .dashboard-grid { display: grid; grid-template-columns: minmax(220px, 1fr) minmax(0, 2fr); gap: 28px; }
+    .dashboard-controls { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px; }
+    .dashboard-card { padding: 32px; }
+    .dashboard-card h3 { margin: 0 0 26px; font-size: 1.3rem; }
+    .timer-display { color: var(--medical-teal); font: 700 3.2rem/1 monospace; text-align: center; margin: 0 0 26px; }
+    body.dark .timer-display { color: var(--cyan-400); }
+    .timer-settings { display: flex; gap: 10px; width: 100%; margin-bottom: 20px; }
+    .timer-settings input { min-width: 0; flex: 1; padding: 11px; border: 1px solid var(--slate-300); border-radius: 10px; background: transparent; color: inherit; text-align: center; }
+    .timer-settings .timer-btn { padding: 10px 16px; }
+    .timer-actions { display: flex; justify-content: center; gap: 12px; }
+    .timer-btn { border: none; border-radius: 999px; padding: 12px 28px; font-weight: 700; cursor: pointer; }
+    .timer-btn.primary { background: var(--medical-teal); color: white; }
+    .timer-btn.secondary { background: var(--slate-200); color: var(--medical-text); }
+    body.dark .timer-btn.secondary { background: var(--slate-700); color: var(--dark-text); }
+    .progress-row { display: flex; justify-content: space-between; gap: 12px; color: var(--medical-muted); font-size: 0.9rem; font-weight: 600; }
+    body.dark .progress-row { color: var(--dark-muted); }
+    .progress-track { height: 16px; background: var(--slate-200); border-radius: 999px; overflow: hidden; margin-top: 14px; }
+    body.dark .progress-track { background: var(--slate-700); }
+    .progress-fill { height: 100%; width: 75%; background: var(--medical-teal); border-radius: inherit; transition: width 0.3s ease; }
+    .settings-panel { max-width: 760px; margin: 0 auto; padding: 0 24px 50px; }
+    .settings-card { padding: 32px; }
+    .settings-card h2 { margin: 0 0 28px; color: var(--primary-color); font-size: 2rem; }
+    .settings-form { display: grid; gap: 24px; }
+    .settings-field { display: grid; gap: 9px; }
+    .settings-field label { font-size: 0.95rem; font-weight: 700; color: var(--medical-text); }
+    body.dark .settings-field label { color: var(--dark-text); }
+    .settings-field input[type="range"], .settings-field select {
+      width: 100%; padding: 11px; border: 1px solid var(--slate-300); border-radius: 10px;
+      background: var(--medical-card); color: inherit;
+    }
+    body.dark .settings-field select { background: var(--dark-card); border-color: var(--slate-700); }
+    .save-settings { width: 100%; border: none; border-radius: 10px; padding: 13px; color: white; background: var(--primary-color); font-weight: 700; cursor: pointer; }
+    .settings-status { min-height: 20px; text-align: center; color: var(--medical-teal); font-weight: 700; }
+    .auth-page {
+      min-height: calc(100vh - 120px); display: grid; place-items: center; padding: 0 24px 50px;
+    }
+    .auth-card { width: min(100%, 460px); padding: 34px; }
+    .auth-card h2 { margin: 0 0 8px; font-size: 2rem; color: var(--medical-text); }
+    body.dark .auth-card h2 { color: var(--dark-text); }
+    .auth-card > p { margin: 0 0 26px; color: var(--medical-muted); }
+    body.dark .auth-card > p { color: var(--dark-muted); }
+    .auth-form { display: grid; gap: 18px; }
+    .auth-field { display: grid; gap: 8px; }
+    .auth-field label { font-weight: 700; font-size: 0.9rem; }
+    .auth-field input { width: 100%; padding: 13px 14px; border: 1px solid var(--slate-200); border-radius: 12px; background: transparent; color: inherit; }
+    body.dark .auth-field input { border-color: var(--slate-700); }
+    .auth-submit { border: none; border-radius: 12px; padding: 14px; background: var(--primary-color); color: white; font-weight: 700; cursor: pointer; }
+    .auth-switch { text-align: center; margin: 24px 0 0; color: var(--medical-muted); }
+    body.dark .auth-switch { color: var(--dark-muted); }
+    .auth-switch button { border: none; background: transparent; color: var(--primary-color); font-weight: 700; cursor: pointer; }
+    .auth-message { min-height: 20px; margin: 0; color: var(--medical-teal); text-align: center; font-weight: 700; }
+    .profile-avatar-wrap { position: relative; width: 92px; height: 92px; margin: 0 auto 16px; }
+    .profile-avatar, .profile-initials {
+      width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: grid; place-items: center;
+      background: #ccfbf1; color: var(--primary-color); font-size: 2rem; font-weight: 800;
+    }
+    .profile-edit {
+      position: absolute; right: -2px; bottom: -2px; width: 30px; height: 30px; border: 2px solid white;
+      border-radius: 50%; background: var(--primary-color); color: white; cursor: pointer; font-size: 0.9rem;
+    }
+    .profile-upload { display: none; }
+    .notes-card { grid-column: 1 / -1; }
+    .notes-upload {
+      border: 2px dashed var(--slate-200); border-radius: 18px; padding: 24px; text-align: center;
+      cursor: pointer; transition: border-color 0.2s ease; color: var(--medical-muted);
+    }
+    .notes-upload:hover { border-color: var(--primary-color); }
+    .notes-upload strong { display: block; color: var(--medical-text); margin-top: 8px; }
+    body.dark .notes-upload { border-color: var(--slate-700); color: var(--dark-muted); }
+    body.dark .notes-upload strong { color: var(--dark-text); }
+    .notes-list { display: grid; gap: 10px; margin: 18px 0 0; padding: 0; list-style: none; }
+    .note-item { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 13px 15px; background: rgba(241,245,249,0.75); border: 1px solid var(--slate-200); border-radius: 14px; }
+    body.dark .note-item { background: rgba(51,65,85,0.45); border-color: var(--slate-700); }
+    .note-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 700; }
+    .note-remove { border: none; background: transparent; color: #dc2626; cursor: pointer; font-size: 1.1rem; }
+
+    .course-grid, .year-grid, .subject-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 26px;
+    }
+
+    .card, .subject-card, .chapter-card, .panel, .article {
+      background: var(--medical-card); border: 1px solid var(--slate-200); border-radius: 22px; box-shadow: 0 10px 22px rgba(15, 23, 42, 0.04);
+    }
+    body.dark .card, body.dark .subject-card, body.dark .chapter-card, body.dark .panel, body.dark .article {
+      background: var(--dark-card); border-color: var(--slate-700);
+    }
+
+    .course-card {
+      padding: 28px; text-align: left; display: flex; align-items: flex-start; gap: 18px; cursor: pointer; transition: 0.2s ease; min-height: 180px;
+    }
+    .course-card:hover, .subject-card:hover, .chapter-card:hover {
+      border-color: var(--medical-teal); transform: translateY(-2px); box-shadow: 0 18px 32px rgba(14, 116, 144, 0.08);
+    }
+    body.dark .course-card:hover, body.dark .subject-card:hover, body.dark .chapter-card:hover {
+      border-color: var(--cyan-500);
+    }
+
+    .course-icon, .subject-icon, .chapter-number {
+      width: 64px; height: 64px; border-radius: 18px; background: #ecfeff; color: var(--medical-teal); display: grid; place-items: center; font-size: 2rem; flex-shrink: 0;
+    }
+    body.dark .course-icon, body.dark .subject-icon, body.dark .chapter-number {
+      background: var(--slate-700); color: var(--cyan-400);
+    }
+    .course-card h3, .subject-card h3, .chapter-card h3 { margin: 0 0 10px; font-size: 1.3rem; }
+    .course-card p, .subject-card p, .chapter-meta { margin: 0; color: var(--medical-muted); }
+    body.dark .course-card p, body.dark .subject-card p, body.dark .chapter-meta { color: var(--dark-muted); }
+    .course-card .cta {
+      color: var(--medical-teal); font-weight: 700; margin-top: 12px; display: inline-block;
+    }
+    body.dark .course-card .cta { color: var(--cyan-400); }
+
+    .disabled-card {
+      padding: 28px; opacity: 0.5; cursor: not-allowed; border: 1px dashed var(--slate-300); background: #f8fafc; border-radius: 22px;
+    }
+    body.dark .disabled-card { border-color: var(--slate-700); background: var(--slate-700); }
+    .iq-card {
+      padding: 28px; color: white; background: linear-gradient(135deg, #0d9488, #0284c7);
+      border-radius: 22px; box-shadow: 0 16px 30px rgba(13, 148, 136, 0.22); text-align: left;
+      cursor: pointer; transition: 0.2s ease;
+    }
+    .iq-card:hover { transform: translateY(-4px); }
+    .iq-card h3 { margin: 0 0 10px; font-size: 1.3rem; }
+    .iq-card p { margin: 0 0 18px; opacity: 0.9; }
+    .iq-card .iq-icon { font-size: 2rem; margin-bottom: 18px; }
+    .quiz-page { max-width: 760px; margin: 0 auto; padding: 0 24px 50px; }
+    .quiz-card { padding: 30px; }
+    .quiz-card h2 { margin: 0 0 8px; }
+    .quiz-question { font-size: 1.25rem; font-weight: 700; margin: 26px 0 18px; }
+    .quiz-options { display: grid; gap: 12px; }
+    .quiz-option { width: 100%; border: 1px solid var(--slate-200); background: transparent; color: inherit; border-radius: 12px; padding: 14px; text-align: left; cursor: pointer; }
+    body.dark .quiz-option { border-color: var(--slate-700); }
+    .quiz-option:hover, .quiz-option.selected { border-color: var(--primary-color); background: rgba(13, 148, 136, 0.08); }
+    .quiz-actions { display: flex; justify-content: space-between; gap: 12px; margin-top: 24px; }
+    .quiz-result { text-align: center; padding: 24px; }
+
+    .year-card {
+      padding: 32px 24px; text-align: center; cursor: pointer; transition: 0.2s ease;
+    }
+    .year-icon {
+      width: 78px; height: 78px; border-radius: 50%; background: #ecfeff; color: var(--medical-teal); display: grid; place-items: center; margin: 0 auto 22px; font-size: 2.3rem;
+    }
+    body.dark .year-icon { background: var(--slate-700); color: var(--cyan-400); }
+    .year-card h3 { margin: 0 0 10px; font-size: 2rem; }
+
+    .main-grid {
+      display: grid;
+      grid-template-columns: minmax(220px, 1fr) minmax(0, 2fr);
+      gap: 30px;
+      max-width: 1200px; margin: 0 auto;
+      padding: 0 24px;
+    }
+    .panel {
+      padding: 28px; position: sticky; top: 30px; height: fit-content;
+    }
+    .side-panel .subject-icon {
+      width: 76px; height: 76px; border-radius: 20px; font-size: 2.5rem; margin-bottom: 20px;
+    }
+    .side-panel h2 { margin: 0 0 20px; font-size: 2.2rem; }
+    .meta-list { display: grid; gap: 14px; }
+    .meta-item {
+      display: flex; align-items: center; gap: 12px; color: var(--medical-teal); font-weight: 700;
+    }
+    body.dark .meta-item { color: var(--cyan-400); }
+    .meta-item.muted { color: var(--medical-muted); opacity: 0.7; }
+    body.dark .meta-item.muted { color: var(--dark-muted); }
+
+    .search-wrap { position: relative; margin-bottom: 22px; }
+    .search-wrap i {
+      position: absolute; left: 18px; top: 50%; transform: translateY(-50%); color: var(--medical-muted);
+    }
+    body.dark .search-wrap i { color: var(--dark-muted); }
+    .search-wrap input {
+      width: 100%; background: var(--medical-card); border: 1px solid var(--slate-200); border-radius: 18px; padding: 18px 18px 18px 46px; font-size: 1rem; color: inherit;
+    }
+    body.dark .search-wrap input {
+      background: var(--dark-card); border-color: var(--slate-700);
+    }
+
+    .chapter-card {
+      width: 100%; cursor: pointer; padding: 20px 18px; display: flex; align-items: center; justify-content: space-between; gap: 16px; transition: 0.2s ease;
+    }
+    .chapter-left { display: flex; align-items: center; gap: 18px; flex: 1; min-width: 0; }
+    .chapter-number {
+      width: 44px; height: 44px; border-radius: 50%; font-weight: 700; font-size: 1rem;
+    }
+    .chapter-text { min-width: 0; flex: 1; }
+    .chapter-text h3 { font-size: 1.15rem; }
+    .chapter-text p {
+      margin: 0; color: var(--medical-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;
+    }
+    body.dark .chapter-text p { color: var(--dark-muted); }
+    .chapter-actions { display: flex; align-items: center; gap: 10px; }
+    .bookmark-btn, .nav-btn {
+      border: none; background: none; cursor: pointer; font-size: 1.5rem; color: var(--slate-300); transition: 0.2s ease;
+    }
+    .bookmark-btn.active { color: var(--amber-500); }
+    .chapter-card .arrow { color: var(--slate-300); font-size: 1.2rem; }
+    body.dark .bookmark-btn, body.dark .chapter-card .arrow { color: var(--slate-600); }
+
+    .empty-state {
+      text-align: center; padding: 44px 18px; color: var(--medical-muted);
+    }
+    body.dark .empty-state { color: var(--dark-muted); }
+
+    .article-shell {
+      max-width: 900px; margin: 0 auto; padding: 0 24px 40px;
+    }
+    .article {
+      padding: 30px 28px; border-radius: 28px;
+    }
+    .article-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; margin-bottom: 22px; }
+    .article-header h2 { margin: 0; font-size: clamp(2rem, 3vw, 2.7rem); }
+    .article .highlight {
+      background: #fffbeb; border-left: 4px solid var(--amber-500); padding: 18px 18px 18px 20px; border-radius: 0 16px 16px 0; margin-bottom: 26px;
+    }
+    body.dark .article .highlight { background: rgba(217, 119, 6, 0.12); }
+    .article .highlight strong { display: block; margin-bottom: 5px; color: var(--amber-700); }
+    body.dark .article .highlight strong { color: #fbbf24; }
+    .article-content { display: grid; gap: 14px; line-height: 1.8; color: var(--medical-muted); }
+    body.dark .article-content { color: var(--dark-muted); }
+    .article-content h3 { margin: 12px 0 0; color: var(--medical-text); font-size: 1.45rem; }
+    body.dark .article-content h3 { color: var(--dark-text); }
+    .article-content ul { margin: 0; padding-left: 24px; display: grid; gap: 8px; }
+    .article .divider { width: 90px; height: 5px; background: var(--medical-teal); border-radius: 999px; margin-bottom: 26px; }
+    body.dark .article .divider { background: var(--cyan-500); }
+    .back-link {
+      display: inline-flex; align-items: center; gap: 8px; margin: 0 auto 20px; max-width: 900px; padding: 0 24px; color: var(--medical-teal); background: none; border: none; cursor: pointer; font-weight: 700;
+    }
+    body.dark .back-link { color: var(--cyan-400); }
+
+    @media (max-width: 760px) {
+      .header-inner { padding: 20px 0; }
+      .main-grid { grid-template-columns: 1fr; }
+      .panel { position: static; }
+      .article-header { flex-direction: column; }
+      .chapter-card { align-items: flex-start; }
+      .chapter-actions { margin-left: auto; }
+      .dashboard-hero { align-items: flex-start; }
+      .dashboard-grid { grid-template-columns: 1fr; }
+      .dashboard-controls { grid-template-columns: 1fr; }
+      .streak-badge { width: 92px; height: 92px; }
+    }
+  </style>
 </head>
-<body class="bg-medical-bg text-medical-text dark:bg-dark-bg dark:text-dark-text font-sans transition-colors duration-300">
-    <div id="root"></div>
+<body>
+  <header class="header">
+    <div class="container header-inner">
+      <div>
+        <h1>PharmaHype</h1>
+        <p>Your Ultimate Pharmacy &amp; Medical Learning Portal</p>
+      </div>
+      <div class="header-actions">
+        <button class="account-btn" id="accountToggle" aria-label="Open account">Account</button>
+        <button class="settings-btn" id="settingsToggle" aria-label="Open appearance settings">⚙</button>
+        <button class="theme-btn" id="themeToggle" aria-label="Toggle theme">☾</button>
+      </div>
+    </div>
+  </header>
 
-    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom-production.min.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <div id="app" class="page-shell"></div>
 
-    <script type="text/babel">
-        const { useState, useEffect } = React;
+  <script>
+    const dPharmContent = {
+      firstYear: {
+        title: 'D.Pharm First Year',
+        subjects: [
+          {
+            id: 'pharmaceutics-i',
+            name: 'Pharmaceutics',
+            icon: '💊',
+            sections: [
+              {
+                title: 'Introduction to Pharmacy',
+                content: 'History of pharmacy profession in India, the development of pharmacy education, and pharmacopoeial standards.',
+                important: 'Remember Prof. Mahadeva Lal Schroff as the pioneer of pharmacy education in India.',
+                contentHtml: `
+                  <h3>History of Pharmacy in India</h3>
+                  <p>Pharmacy profession in India has evolved significantly over the decades. The foundation of modern pharmacy education was laid by <strong>Mahadeva Lal Schroff</strong>, who is widely regarded as the father of pharmacy education in India. He introduced the first university-level pharmacy course at Banaras Hindu University (BHU).</p>
+                  <p>Over time, the profession shifted from simple compounding to highly regulated clinical and industrial practices, regulated today by the Pharmacy Council of India (PCI).</p>
+                  <h3>Pharmacopoeia</h3>
+                  <p>A Pharmacopoeia is an official book of standards for drugs and medicines. It provides guidelines for the identification, purity, and formulation of pharmaceutical substances.</p>
+                  <ul>
+                    <li><strong>IP (Indian Pharmacopoeia):</strong> The official book of standards for drugs in India.</li>
+                    <li><strong>BP (British Pharmacopoeia):</strong> Sets standards followed in the UK and several Commonwealth nations.</li>
+                    <li><strong>USP (United States Pharmacopoeia):</strong> The official standard book for the USA.</li>
+                  </ul>
+                `
+              },
+              {
+                title: 'Packaging Materials',
+                content: 'Glass, plastic, metal, and rubber packaging materials used to protect medicines and maintain their stability.',
+                contentHtml: `
+                  <p>Pharmaceutical packaging materials protect medicines from light, moisture, contamination, damage, and chemical change.</p>
+                  <h3>Glass Packaging</h3>
+                  <p>Glass is widely used because it is inert and usually does not react with pharmaceutical chemicals.</p>
+                  <ul>
+                    <li><strong>Type I (Borosilicate Glass):</strong> Highly resistant and suitable for injections and parenteral preparations.</li>
+                    <li><strong>Type II (Soda-Lime-Treated):</strong> Treated surface suitable for acidic and neutral products.</li>
+                    <li><strong>Type III (Soda-Lime Glass):</strong> General-purpose glass for oral and topical products.</li>
+                  </ul>
+                  <h3>Plastic Packaging</h3>
+                  <p>Plastics are lightweight and durable, but leaching, absorption, and drug-plastic incompatibility must be considered.</p>
+                  <ul>
+                    <li><strong>Thermoplastics:</strong> Polyethylene and polypropylene can soften or melt on heating and be reshaped.</li>
+                    <li><strong>Advantage:</strong> Lightweight and break-resistant.</li>
+                    <li><strong>Disadvantage:</strong> Possible chemical leaching and drug-plastic incompatibility.</li>
+                  </ul>
+                  <h3>Metal Packaging</h3>
+                  <p>Metals provide excellent barriers against light and moisture. Internal corrosion must be controlled with appropriate coatings and material selection.</p>
+                  <h3>Rubber Packaging</h3>
+                  <p>Rubber is used for vial and syringe closures. Both natural and synthetic rubber are used depending on the product and compatibility requirements.</p>
+                `
+              },
+              {
+                title: 'Pharmaceutical Aids & Preservatives',
+                content: 'Colouring, flavouring, and sweetening agents used to improve the appearance, taste, and acceptability of medicines.',
+                contentHtml: `
+                  <p>Pharmaceutical aids improve the appearance, taste, smell, stability, and patient acceptability of a formulation without being the main therapeutic ingredient.</p>
+                  <h3>Colouring Agents</h3>
+                  <p>Colouring agents make medicines attractive and help distinguish different dosage forms. <strong>Tartrazine</strong> and tartrazine yellow are common examples used in liquid formulations.</p>
+                  <h3>Flavouring Agents</h3>
+                  <p>Flavouring agents help mask bitter or unpleasant tastes, especially in medicines intended for children. <strong>Vanilla</strong> and <strong>cherry</strong> are examples of pleasant flavours.</p>
+                  <h3>Sweetening Agents</h3>
+                  <p>Sweetening agents make medicines easier to take by improving their taste.</p>
+                  <ul>
+                    <li><strong>Sugar-based:</strong> Sucrose provides traditional sweetness.</li>
+                    <li><strong>Artificial:</strong> Saccharin is suitable for sugar-free products.</li>
+                  </ul>
+                `
+              },
+              { title: 'Unit Operations', content: 'Size reduction, size separation, mixing, filtration, and other fundamental operations used in pharmaceutical manufacturing.' },
+              { title: 'Dosage Forms', content: 'Tablets, capsules, liquid oral preparations, and other dosage forms used to deliver medicines safely and effectively.' },
+              { title: 'Quality Management', content: 'Basic structure and layout of pharmaceutical manufacturing plants, along with the principles used to maintain product quality.' },
+              { title: 'Novel Drug Delivery Systems', content: 'Introduction to novel drug delivery systems (NDDS) and their role in improving drug targeting, safety, and effectiveness.' }
+            ]
+          },
+          {
+            id: 'pharmaceutical-chemistry',
+            name: 'Pharmaceutical Chemistry',
+            icon: '🧪',
+            sections: [
+              { title: 'Introduction to Pharmaceutical Chemistry', content: "Pharmaceutical Chemistry involves the study of drugs from a chemical perspective. This includes their structure, synthesis, and how they react within the body. We look at different chemical groups and how they affect the drug's action." },
+              { title: 'Sources of Impurities', content: 'Impurities are unwanted chemicals that remain in the medicine. They can come from raw materials, the manufacturing process, or storage conditions. Controlling impurities is crucial for patient safety.' }
+            ]
+          },
+          {
+            id: 'pharmacognosy',
+            name: 'Pharmacognosy',
+            icon: '🌿',
+            sections: [
+              { title: 'Introduction to Pharmacognosy', content: 'Pharmacognosy is the study of medicinal drugs derived from plants and other natural sources. It covers the history, production, and chemical composition of natural remedies like herbs, roots, and essential oils.' },
+              { title: 'Plant Constituents', content: 'These are the active chemical compounds found in plants that provide medicinal effects. Common examples include alkaloids, glycosides, and volatile oils.' }
+            ]
+          },
+          {
+            id: 'hap',
+            name: 'Human Anatomy & Physiology',
+            icon: '🩺',
+            sections: [
+              { title: 'Introduction to Human Anatomy and Physiology', content: 'Human Anatomy is the study of the physical structure of the human body (organs, bones, muscles). Physiology is the study of how these structures work and interact to keep us alive.' },
+              { title: 'The Cell', content: 'The cell is the basic structural and functional unit of all living organisms. We study the parts of the cell and their functions, as well as how cells divide and communicate.' }
+            ]
+          },
+          {
+            id: 'social-pharmacy',
+            name: 'Social Pharmacy',
+            icon: '👥',
+            sections: [
+              { title: 'Introduction to Social Pharmacy', content: 'Social Pharmacy deals with the role of pharmacy and medicines in society. It covers public health, health promotion, disease prevention, and the pharmacist\'s responsibility to the community.' },
+              { title: 'National Health Programs', content: 'Various programs implemented by the government to control and prevent widespread diseases in society, such as tuberculosis, polio, and HIV/AIDS.' }
+            ]
+          }
+        ]
+      },
+      secondYear: {
+        title: 'D.Pharm Second Year',
+        subjects: [
+          {
+            id: 'pharmacology',
+            name: 'Pharmacology',
+            icon: '💉',
+            sections: [
+              { title: 'Introduction to Pharmacology', content: "Pharmacology is the study of how drugs interact with living systems. It combines 'Pharmacokinetics' (what the body does to the drug) and 'Pharmacodynamics' (what the drug does to the body)." },
+              { title: 'Routes of Drug Administration', content: 'The different ways a drug can enter the body, such as oral (swallowing), intravenous (injection into the vein), transdermal (skin patches), and intramuscular (injection into the muscle).' }
+            ]
+          },
+          {
+            id: 'community-pharmacy',
+            name: 'Community Pharmacy & Management',
+            icon: '🏥',
+            sections: [
+              { title: 'Introduction to Community Pharmacy', content: 'A community pharmacy is a retail store that dispenses medications and offers health advice to members of the general population. The community pharmacist acts as an accessible healthcare provider.' },
+              { title: 'Good Pharmacy Practice (GPP)', content: 'Standards that community pharmacists must follow to ensure they provide optimal professional care to patients.' }
+            ]
+          },
+          {
+            id: 'biochemistry',
+            name: 'Biochemistry & Clinical Pathology',
+            icon: '🧬',
+            sections: [
+              { title: 'Introduction to Biochemistry', content: 'Biochemistry is the study of chemical processes within and relating to living organisms. It bridges biology and chemistry, focusing on cellular components like proteins, carbohydrates, lipids, and nucleic acids.' },
+              { title: 'Carbohydrates Metabolism', content: 'How the body processes and breaks down sugars and starches to produce energy for daily functions.' }
+            ]
+          },
+          {
+            id: 'pharmacotherapeutics',
+            name: 'Pharmacotherapeutics',
+            icon: '🩹',
+            sections: [
+              { title: 'Introduction to Pharmacotherapeutics', content: 'Pharmacotherapeutics is the study of the therapeutic uses and effects of drugs. It focuses on selecting the appropriate drug and dosage for a specific patient\'s condition based on clinical evidence.' },
+              { title: 'Individualized Dosing', content: 'Adjusting drug dosages to match a patient\'s individual characteristics, such as age, weight, and kidney function.' }
+            ]
+          },
+          {
+            id: 'hospital-pharmacy',
+            name: 'Hospital & Clinical Pharmacy',
+            icon: '🧑‍⚕️',
+            sections: [
+              { title: 'Introduction to Hospital Pharmacy', content: 'Hospital pharmacy is a specialized field where the pharmacist operates within a hospital environment. This includes managing inpatient medications, preparing IV solutions, and collaborating with doctors and nurses.' },
+              { title: 'Formulary System', content: 'An officially approved list of medicines and therapies maintained by the hospital to ensure safe and cost-effective medication use.' }
+            ]
+          },
+          {
+            id: 'law-ethics',
+            name: 'Pharmacy Law & Ethics',
+            icon: '⚖️',
+            sections: [
+              { title: 'Introduction to Pharmacy Law', content: 'Pharmacy Law covers the legal regulations governing the manufacture, sale, and distribution of medicines. Ethics focus on the moral responsibilities of the pharmacist towards the patient and healthcare system.' },
+              { title: 'The Drugs and Cosmetics Act, 1940', content: 'A vital legislative act in India regulating the import, manufacture, distribution, and sale of drugs and cosmetics to ensure quality and standard.' }
+            ]
+          }
+        ]
+      }
+    };
 
-        const readStoredBookmarks = () => {
-            try {
-                const raw = localStorage.getItem('pharmaBookmarks');
-                return raw ? JSON.parse(raw) : [];
-            } catch (error) {
-                return [];
+    const app = document.getElementById('app');
+    const state = {
+      view: 'landing',
+      course: null,
+      year: null,
+      subject: null,
+      section: null,
+      dark: false,
+      search: '',
+      timerSeconds: 25 * 60,
+      timerMinutes: 25,
+      timerRunning: false,
+      timerInterval: null,
+      quizIndex: 0,
+      quizScore: 0,
+      quizAnswer: null,
+      quizFinished: false,
+      notes: (() => {
+        try { return JSON.parse(localStorage.getItem('pharmaNotes')) || []; } catch { return []; }
+      })(),
+      todayMinutes: (() => {
+        try { return Number(localStorage.getItem('pharmaTodayMinutes')) || 0; } catch { return 0; }
+      })(),
+      recordMinutes: (() => {
+        try { return Number(localStorage.getItem('pharmaRecordMinutes')) || 60; } catch { return 60; }
+      })(),
+      authMode: 'login',
+      authMessage: '',
+      user: (() => {
+        try {
+          return JSON.parse(localStorage.getItem('pharmaUser')) || {
+            name: 'Student Name',
+            email: 'student@example.com',
+            initials: 'S',
+            photo: ''
+          };
+        } catch {
+          return { name: 'Student Name', email: 'student@example.com', initials: 'S', photo: '' };
+        }
+      })(),
+      settings: (() => {
+        try {
+          return JSON.parse(localStorage.getItem('pharmaSettings')) || {
+            intensity: '0.5',
+            color: '#0d9488',
+            font: 'Arial, sans-serif'
+          };
+        } catch {
+          return { intensity: '0.5', color: '#0d9488', font: 'Arial, sans-serif' };
+        }
+      })(),
+      bookmarks: (() => {
+        try {
+          return JSON.parse(localStorage.getItem('pharmaBookmarks')) || [];
+        } catch {
+          return [];
+        }
+      })()
+    };
+
+    function setDarkTheme() {
+      document.body.classList.toggle('dark', state.dark);
+      const button = document.getElementById('themeToggle');
+      if (button) button.textContent = state.dark ? '☀' : '☾';
+    }
+
+    function applySettings() {
+      document.documentElement.style.setProperty('--theme-intensity', state.settings.intensity);
+      document.documentElement.style.setProperty('--primary-color', state.settings.color);
+      document.documentElement.style.setProperty('--settings-font', state.settings.font);
+      document.body.classList.add('settings-preview');
+    }
+
+    function saveSettings() {
+      try {
+        localStorage.setItem('pharmaSettings', JSON.stringify(state.settings));
+      } catch (e) {
+        console.warn('Settings save failed', e);
+      }
+    }
+
+    function saveUser() {
+      try {
+        localStorage.setItem('pharmaUser', JSON.stringify(state.user));
+      } catch (e) {
+        console.warn('Account save failed', e);
+      }
+    }
+
+    function saveStudyProgress() {
+      try {
+        localStorage.setItem('pharmaTodayMinutes', String(state.todayMinutes));
+        localStorage.setItem('pharmaRecordMinutes', String(state.recordMinutes));
+      } catch (e) {
+        console.warn('Study progress save failed', e);
+      }
+    }
+
+    function saveNotes() {
+      try {
+        localStorage.setItem('pharmaNotes', JSON.stringify(state.notes));
+      } catch (e) {
+        console.warn('Notes save failed', e);
+      }
+    }
+
+    function saveBookmarks() {
+      try {
+        localStorage.setItem('pharmaBookmarks', JSON.stringify(state.bookmarks));
+      } catch (e) {
+        console.warn('Bookmark save failed', e);
+      }
+    }
+
+    function toggleBookmark(title, event) {
+      if (event) event.stopPropagation();
+      const exists = state.bookmarks.includes(title);
+      state.bookmarks = exists ? state.bookmarks.filter(item => item !== title) : [...state.bookmarks, title];
+      saveBookmarks();
+      render();
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function renderDashboard() {
+      const minutes = Math.floor(state.timerSeconds / 60);
+      const seconds = state.timerSeconds % 60;
+      const time = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+      const studyHours = Math.floor(state.todayMinutes / 60);
+      const studyMinutes = state.todayMinutes % 60;
+      const todayTime = `${String(studyHours).padStart(2, '0')}:${String(studyMinutes).padStart(2, '0')}`;
+      return `
+        <div class="dashboard">
+          <section class="dashboard-hero">
+            <div>
+              <h2>Padhayi ka Dashboard</h2>
+              <p>Roz padho, streak banao!</p>
+            </div>
+            <div class="streak-badge">
+              <strong>5</strong>
+              <span>Day Streak</span>
+            </div>
+          </section>
+          <div class="dashboard-grid">
+            <section class="card dashboard-card" style="text-align: center;">
+              <div class="profile-avatar-wrap">
+                ${state.user.photo
+                  ? `<img class="profile-avatar" src="${escapeHtml(state.user.photo)}" alt="Profile Picture">`
+                  : `<div class="profile-initials">${escapeHtml(state.user.initials)}</div>`}
+                <label class="profile-edit" for="profileUpload" aria-label="Upload profile picture">✎</label>
+                <input class="profile-upload" type="file" id="profileUpload" accept="image/*">
+              </div>
+              <h3 style="margin-bottom: 6px;">${escapeHtml(state.user.name)}</h3>
+              <p style="color: var(--medical-muted); margin: 0 0 18px; font-size: 0.9rem;">${escapeHtml(state.user.email)}</p>
+              <button class="timer-btn secondary" data-action="open-account" style="width: 100%;">Edit Profile</button>
+            </section>
+            <div class="dashboard-controls">
+            <section class="card dashboard-card">
+              <h3>Focus Timer</h3>
+              <div class="timer-settings">
+                <input id="customMinutes" type="number" min="1" max="120" value="${state.timerMinutes}" aria-label="Timer duration in minutes">
+                <button class="timer-btn secondary" data-action="set-timer">Set Time</button>
+              </div>
+              <div class="timer-display" id="timerDisplay">${time}</div>
+              <div class="timer-actions">
+                <button class="timer-btn primary" data-action="toggle-timer">${state.timerRunning ? 'Pause' : 'Start'}</button>
+                <button class="timer-btn secondary" data-action="reset-timer">Reset</button>
+              </div>
+            </section>
+            <section class="card dashboard-card">
+              <h3>Study Progress</h3>
+              <div style="text-align: center; margin-bottom: 22px;">
+                <p style="color: var(--medical-muted); font-weight: 600; margin: 0;">Today's Study Time</p>
+                <div class="timer-display" style="margin: 12px 0 0;">${todayTime}</div>
+              </div>
+              <div class="timer-actions" style="margin-bottom: 24px;">
+                <button class="timer-btn secondary" data-action="add-hour">+1 Hour</button>
+                <button class="timer-btn primary" data-action="complete-study">Complete Session</button>
+              </div>
+              <h3 style="font-size: 1.05rem; margin-bottom: 16px;">Daily Progress</h3>
+              <div class="progress-row">
+                <span>Daily Goal: 2 Hours</span>
+                <span>${Math.min(100, Math.round((state.todayMinutes / 120) * 100))}% Complete</span>
+              </div>
+              <div class="progress-track" aria-label="Daily progress">
+                <div class="progress-fill" style="width: ${Math.min(100, Math.round((state.todayMinutes / 120) * 100))}%;"></div>
+              </div>
+              <p style="color: var(--medical-muted); font-size: 0.85rem; margin: 14px 0 0;">Personal record: ${Math.floor(state.recordMinutes / 60)}h ${state.recordMinutes % 60}m</p>
+            </section>
+              <section class="card dashboard-card notes-card">
+                <div>
+                  <h3>My Notes</h3>
+                  <label class="notes-upload" for="noteUpload">
+                    <div style="font-size: 2rem; color: var(--primary-color);">☁</div>
+                    <strong>Upload Notes (PDF/Text)</strong>
+                    <span>PDF, TXT, or DOCX files</span>
+                    <input class="profile-upload" type="file" id="noteUpload" accept=".pdf,.txt,.docx">
+                  </label>
+                </div>
+                <div>
+                  <h4 style="margin: 22px 0 0; color: var(--medical-muted); text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.75rem;">Saved Notes</h4>
+                  <ul class="notes-list">
+                    ${state.notes.length
+                      ? state.notes.map((note, index) => `
+                        <li class="note-item">
+                          <span class="note-name">📄 ${escapeHtml(note.name)}</span>
+                          <button class="note-remove" data-action="remove-note" data-note-index="${index}" aria-label="Remove note">✕</button>
+                        </li>
+                      `).join('')
+                      : '<li style="color: var(--medical-muted); font-style: italic; font-size: 0.9rem;">Koi notes upload nahi kiye gaye.</li>'}
+                  </ul>
+                </div>
+              </section>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderAuth() {
+      const signup = state.authMode === 'signup';
+      return `
+        <div class="auth-page">
+          <section class="card auth-card">
+            <h2>${signup ? 'Create Account' : 'Welcome Back!'}</h2>
+            <p>${signup ? 'PharmaHype ke saath padhayi shuru karein.' : 'Apne account mein login karein.'}</p>
+            <form class="auth-form" data-action="submit-auth">
+              ${signup ? `
+                <div class="auth-field">
+                  <label for="authName">Full Name</label>
+                  <input id="authName" name="name" type="text" placeholder="Rahul Sharma" required>
+                </div>
+              ` : ''}
+              <div class="auth-field">
+                <label for="authEmail">Email Address</label>
+                <input id="authEmail" name="email" type="email" placeholder="student@example.com" required>
+              </div>
+              <div class="auth-field">
+                <label for="authPassword">Password</label>
+                <input id="authPassword" name="password" type="password" placeholder="••••••••" required>
+              </div>
+              <button class="auth-submit" type="submit">${signup ? 'Sign Up' : 'Login'}</button>
+              <p class="auth-message">${escapeHtml(state.authMessage)}</p>
+            </form>
+            <p class="auth-switch">${signup ? 'Pehle se account hai?' : 'Naya account nahi hai?'}
+              <button data-action="toggle-auth">${signup ? 'Login' : 'Sign Up'}</button>
+            </p>
+          </section>
+        </div>
+      `;
+    }
+
+    function renderSettings() {
+      return `
+        <div class="settings-panel">
+          <section class="card settings-card">
+            <h2>Appearance Settings</h2>
+            <div class="settings-form">
+              <div class="settings-field">
+                <label for="intensitySlider">Theme Intensity</label>
+                <input type="range" id="intensitySlider" min="0" max="1" step="0.1" value="${escapeHtml(state.settings.intensity)}">
+              </div>
+              <div class="settings-field">
+                <label for="colorSelect">Primary Color</label>
+                <select id="colorSelect">
+                  <option value="#0d9488" ${state.settings.color === '#0d9488' ? 'selected' : ''}>Teal (Default)</option>
+                  <option value="#2563eb" ${state.settings.color === '#2563eb' ? 'selected' : ''}>Blue</option>
+                  <option value="#059669" ${state.settings.color === '#059669' ? 'selected' : ''}>Emerald</option>
+                  <option value="#dc2626" ${state.settings.color === '#dc2626' ? 'selected' : ''}>Red</option>
+                  <option value="#7c3aed" ${state.settings.color === '#7c3aed' ? 'selected' : ''}>Purple</option>
+                </select>
+              </div>
+              <div class="settings-field">
+                <label for="fontSelect">Typography</label>
+                <select id="fontSelect">
+                  <option value="Arial, sans-serif" ${state.settings.font === 'Arial, sans-serif' ? 'selected' : ''}>Sans-Serif</option>
+                  <option value="Georgia, serif" ${state.settings.font === 'Georgia, serif' ? 'selected' : ''}>Serif</option>
+                  <option value="monospace" ${state.settings.font === 'monospace' ? 'selected' : ''}>Monospace</option>
+                </select>
+              </div>
+              <button class="save-settings" data-action="save-settings">Save Preferences</button>
+              <div class="settings-status" id="settingsStatus" aria-live="polite"></div>
+            </div>
+          </section>
+        </div>
+      `;
+    }
+
+    const quizQuestions = [
+      {
+        question: 'Paracetamol ka mukhya kaam kya hai?',
+        options: ['Dard kam karna', 'Khansi rokna', 'Pet saaf karna', 'Vitamin dena'],
+        answer: 0
+      },
+      {
+        question: 'Insulin ka utpadan sharir ke kis ang dwara hota hai?',
+        options: ['Liver', 'Pancreas', 'Kidney', 'Heart'],
+        answer: 1
+      }
+    ];
+
+    function renderQuiz() {
+      const question = quizQuestions[state.quizIndex];
+      if (state.quizFinished) {
+        return `
+          <div class="quiz-page">
+            <section class="card quiz-card quiz-result">
+              <h2>Quiz Complete!</h2>
+              <p>You scored <strong>${state.quizScore}</strong> out of <strong>${quizQuestions.length}</strong>.</p>
+              <button class="timer-btn primary" data-action="restart-quiz">Try Again</button>
+            </section>
+          </div>
+        `;
+      }
+      return `
+        <div class="quiz-page">
+          <section class="card quiz-card">
+            <h2>Pharmacy IQ Test</h2>
+            <p style="color: var(--medical-muted);">Question ${state.quizIndex + 1} of ${quizQuestions.length}</p>
+            <div class="quiz-question">${escapeHtml(question.question)}</div>
+            <div class="quiz-options">
+              ${question.options.map((option, index) => `
+                <button class="quiz-option ${state.quizAnswer === index ? 'selected' : ''}" data-action="select-quiz-option" data-option-index="${index}">
+                  ${escapeHtml(option)}
+                </button>
+              `).join('')}
+            </div>
+            <div class="quiz-actions">
+              <button class="timer-btn secondary" data-action="go-home">Back</button>
+              <button class="timer-btn primary" data-action="next-quiz">${state.quizIndex === quizQuestions.length - 1 ? 'Finish' : 'Next'}</button>
+            </div>
+          </section>
+        </div>
+      `;
+    }
+
+    function renderLanding() {
+      return `
+        <div class="container">
+          <div class="section-title">
+            <h2>Choose Your Course</h2>
+            <div class="section-divider"></div>
+          </div>
+          <button class="card course-card" data-action="open-dashboard" style="width: 100%; margin-bottom: 26px;">
+            <div class="course-icon">📊</div>
+            <div>
+              <h3>Student Dashboard</h3>
+              <p>Track your study streak, use the focus timer, and monitor daily progress.</p>
+              <span class="cta">Open Dashboard →</span>
+            </div>
+          </button>
+          <div class="course-grid">
+            <button class="card course-card" data-action="select-course" data-course="d-pharm">
+              <div class="course-icon">⚕️</div>
+              <div>
+                <h3>D.Pharm</h3>
+                <p>Diploma in Pharmacy Study Materials, Notes, and Exam Prep.</p>
+                <span class="cta">Get Started →</span>
+              </div>
+            </button>
+            <div class="disabled-card">
+              <div class="course-icon">🎓</div>
+              <h3>B.Pharm</h3>
+              <p>Bachelor in Pharmacy - Coming Soon.</p>
+            </div>
+            <div class="disabled-card">
+              <div class="course-icon">🧫</div>
+              <h3>M.Pharm</h3>
+              <p>Master in Pharmacy - Coming Soon.</p>
+            </div>
+            <div class="disabled-card">
+              <div class="course-icon">👨‍⚕️</div>
+              <h3>Pharm.D</h3>
+              <p>Doctor of Pharmacy - Coming Soon.</p>
+            </div>
+            <button class="iq-card" data-action="open-quiz">
+              <div class="iq-icon">🧠</div>
+              <h3>IQ Test</h3>
+              <p>Pharmacy General Knowledge aur Basic Science ke sawal.</p>
+              <strong>Test Your Knowledge →</strong>
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderYearSelect() {
+      return `
+        <div class="container">
+          <div class="section-title">
+            <h2>Select Academic Year</h2>
+            <div class="section-divider"></div>
+          </div>
+          <div class="year-grid">
+            <button class="card year-card" data-action="select-year" data-year="first-year">
+              <div class="year-icon">1</div>
+              <h3>First Year</h3>
+              <p>Access all basic subjects, notes, and foundational topics.</p>
+            </button>
+            <button class="card year-card" data-action="select-year" data-year="second-year">
+              <div class="year-icon">2</div>
+              <h3>Second Year</h3>
+              <p>Access advanced clinical subjects, pharmacology, and law.</p>
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderBreadcrumbs() {
+      if (state.view === 'landing') return '';
+      const yearLabel = state.year ? state.year.replace('-', ' ') : '';
+      return `
+        <nav class="breadcrumbs" aria-label="Breadcrumb">
+          <button data-action="go-home">Home</button>
+          ${state.course ? '<span class="crumb-sep">›</span><button data-action="go-year-select">D-PHARM</button>' : ''}
+          ${state.year ? '<span class="crumb-sep">›</span><button data-action="go-subject-list">' + escapeHtml(yearLabel) + '</button>' : ''}
+          ${state.subject ? '<span class="crumb-sep">›</span><span>' + escapeHtml(state.subject.name) + '</span>' : ''}
+        </nav>
+      `;
+    }
+
+    function renderSubjectList() {
+      const yearKey = state.year === 'first-year' ? 'firstYear' : 'secondYear';
+      const data = dPharmContent[yearKey];
+      return `
+        <div class="container">
+          <div class="section-title">
+            <h2>${escapeHtml(data.title)}</h2>
+            <p style="color: var(--medical-muted); margin: 0;">Select a subject to view chapters and notes.</p>
+            <div class="section-divider" style="margin-top: 16px;"></div>
+          </div>
+          <div class="subject-grid">
+            ${data.subjects.map(subject => `
+              <button class="subject-card card" data-action="open-subject" data-subject-id="${subject.id}" style="padding: 24px; display: flex; align-items: center; justify-content: space-between; width: 100%; border: 1px solid var(--slate-200); cursor: pointer; text-align: left;">
+                <div class="subject-icon" style="font-size: 2rem;">${subject.icon}</div>
+                <div style="flex: 1; min-width: 0; margin-left: 12px;">
+                  <h3>${escapeHtml(subject.name)}</h3>
+                  <p>View all topics &amp; study material</p>
+                </div>
+                <div style="font-size: 1.4rem; color: var(--slate-300);">›</div>
+              </button>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderSubjectDetail() {
+      if (!state.subject) return '';
+      const filtered = state.subject.sections.filter(section => {
+        const target = (section.title + ' ' + section.content).toLowerCase();
+        return target.includes(state.search.toLowerCase());
+      });
+
+      return `
+        <div class="main-grid">
+          <aside class="panel side-panel">
+            <div class="subject-icon">${state.subject.icon}</div>
+            <h2>${escapeHtml(state.subject.name)}</h2>
+            <div class="meta-list">
+              <div class="meta-item"><span>📖</span><span>${state.subject.sections.length} Chapters in this subject</span></div>
+              <div class="meta-item muted"><span>📝</span><span>Viva Questions (Coming Soon)</span></div>
+              <div class="meta-item muted"><span>📄</span><span>Past Papers (Coming Soon)</span></div>
+            </div>
+          </aside>
+
+          <main>
+            <div class="search-wrap">
+              <i>🔎</i>
+              <input type="text" id="searchInput" value="${escapeHtml(state.search)}" placeholder="Search chapters or topics..." />
+            </div>
+
+            ${filtered.length ? filtered.map((section, index) => `
+              <button class="chapter-card" data-action="open-section" data-section-index="${state.subject.sections.indexOf(section)}" style="margin-bottom: 18px;">
+                <div class="chapter-left">
+                  <div class="chapter-number">${index + 1}</div>
+                  <div class="chapter-text">
+                    <h3>${escapeHtml(section.title)}</h3>
+                    <p>${escapeHtml(section.content.slice(0, 140))}${section.content.length > 140 ? '...' : ''}</p>
+                  </div>
+                </div>
+                <div class="chapter-actions">
+                  ${section.important ? '<span style="background: var(--amber-100); color: var(--amber-700); border-radius: 999px; padding: 6px 10px; font-size: 0.7rem; font-weight: 700;">★ Important</span>' : ''}
+                  <button class="bookmark-btn ${state.bookmarks.includes(section.title) ? 'active' : ''}" data-action="toggle-bookmark" data-bookmark-title="${escapeHtml(section.title)}" aria-label="Bookmark chapter">★</button>
+                  <span class="arrow">›</span>
+                </div>
+              </button>
+            `).join('') : `
+              <div class="empty-state">
+                <div style="font-size: 3rem; opacity: 0.5; margin-bottom: 12px;">📦</div>
+                <p>No chapters found matching your search.</p>
+              </div>
+            `}
+          </main>
+        </div>
+      `;
+    }
+
+    function renderReadingView() {
+      if (!state.section) return '';
+      return `
+        <div class="article-shell">
+          <button class="back-link" data-action="close-section">← Back to Chapters</button>
+          <article class="article">
+            <div class="article-header">
+              <h2>${escapeHtml(state.section.title)}</h2>
+              <button class="bookmark-btn ${state.bookmarks.includes(state.section.title) ? 'active' : ''}" data-action="toggle-bookmark" data-bookmark-title="${escapeHtml(state.section.title)}" aria-label="Bookmark chapter" style="font-size: 2rem;">★</button>
+            </div>
+
+            ${state.section.important ? `
+              <div class="highlight">
+                <strong>Important Highlight</strong>
+                <span>${escapeHtml(state.section.important)}</span>
+              </div>
+            ` : ''}
+
+            <div class="divider"></div>
+            <div class="article-content">
+              ${state.section.contentHtml || state.section.content.split('\n').map(paragraph => `<p>${escapeHtml(paragraph || ' ')}</p>`).join('')}
+            </div>
+          </article>
+        </div>
+      `;
+    }
+
+    function render() {
+      const viewMap = {
+        landing: renderLanding,
+        dashboard: renderDashboard,
+        auth: renderAuth,
+        settings: renderSettings,
+        quiz: renderQuiz,
+        'year-select': renderYearSelect,
+        'subject-list': renderSubjectList,
+        'subject-detail': renderSubjectDetail,
+        'reading-view': renderReadingView
+      };
+
+      const content = state.section ? renderReadingView() : viewMap[state.view] ? viewMap[state.view]() : '';
+      app.innerHTML = `
+        ${renderBreadcrumbs()}
+        ${content}
+      `;
+      setDarkTheme();
+      applySettings();
+
+      const searchInput = document.getElementById('searchInput');
+      if (searchInput) {
+        searchInput.addEventListener('input', (event) => {
+          state.search = event.target.value;
+          render();
+        });
+      }
+      const profileUpload = document.getElementById('profileUpload');
+      if (profileUpload) {
+        profileUpload.addEventListener('change', (event) => {
+          const file = event.target.files && event.target.files[0];
+          if (!file) return;
+          if (!file.type.startsWith('image/')) return;
+          const reader = new FileReader();
+          reader.onload = () => {
+            state.user.photo = String(reader.result);
+            saveUser();
+            render();
+          };
+          reader.readAsDataURL(file);
+        });
+      }
+      const noteUpload = document.getElementById('noteUpload');
+      if (noteUpload) {
+        noteUpload.addEventListener('change', (event) => {
+          const file = event.target.files && event.target.files[0];
+          if (!file) return;
+          const allowed = ['application/pdf', 'text/plain', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+          const extensionAllowed = /\.(pdf|txt|docx)$/i.test(file.name);
+          if (!allowed.includes(file.type) && !extensionAllowed) return;
+          state.notes.push({ name: file.name });
+          saveNotes();
+          render();
+        });
+      }
+      const intensitySlider = document.getElementById('intensitySlider');
+      const colorSelect = document.getElementById('colorSelect');
+      const fontSelect = document.getElementById('fontSelect');
+      if (intensitySlider) {
+        intensitySlider.addEventListener('input', (event) => {
+          state.settings.intensity = event.target.value;
+          applySettings();
+        });
+      }
+      if (colorSelect) {
+        colorSelect.addEventListener('change', (event) => {
+          state.settings.color = event.target.value;
+          applySettings();
+        });
+      }
+      if (fontSelect) {
+        fontSelect.addEventListener('change', (event) => {
+          state.settings.font = event.target.value;
+          applySettings();
+        });
+      }
+    }
+
+    document.getElementById('themeToggle').addEventListener('click', () => {
+      state.dark = !state.dark;
+      setDarkTheme();
+    });
+    document.getElementById('settingsToggle').addEventListener('click', () => {
+      state.view = 'settings';
+      state.section = null;
+      render();
+    });
+    document.getElementById('accountToggle').addEventListener('click', () => {
+      state.view = 'auth';
+      state.authMessage = '';
+      render();
+    });
+
+    document.addEventListener('click', (event) => {
+      const target = event.target.closest('[data-action]');
+      if (!target) return;
+
+      const action = target.dataset.action;
+      if (action === 'select-course') {
+        state.course = target.dataset.course;
+        state.view = 'year-select';
+        state.year = null;
+        state.subject = null;
+        state.section = null;
+        state.search = '';
+        render();
+      }
+
+      if (action === 'open-dashboard') {
+        state.view = 'dashboard';
+        state.section = null;
+        render();
+      }
+
+      if (action === 'open-quiz') {
+        state.view = 'quiz';
+        state.quizIndex = 0;
+        state.quizScore = 0;
+        state.quizAnswer = null;
+        state.quizFinished = false;
+        render();
+      }
+
+      if (action === 'select-quiz-option') {
+        state.quizAnswer = Number(target.dataset.optionIndex);
+        render();
+      }
+
+      if (action === 'next-quiz') {
+        if (state.quizAnswer === null) return;
+        const current = quizQuestions[state.quizIndex];
+        if (state.quizAnswer === current.answer) state.quizScore += 1;
+        if (state.quizIndex === quizQuestions.length - 1) {
+          state.quizFinished = true;
+        } else {
+          state.quizIndex += 1;
+          state.quizAnswer = null;
+        }
+        render();
+      }
+
+      if (action === 'restart-quiz') {
+        state.quizIndex = 0;
+        state.quizScore = 0;
+        state.quizAnswer = null;
+        state.quizFinished = false;
+        render();
+      }
+
+      if (action === 'open-account') {
+        state.view = 'auth';
+        state.authMode = 'login';
+        state.authMessage = '';
+        render();
+      }
+
+      if (action === 'toggle-auth') {
+        state.authMode = state.authMode === 'login' ? 'signup' : 'login';
+        state.authMessage = '';
+        render();
+      }
+
+      if (action === 'save-settings') {
+        saveSettings();
+        const status = document.getElementById('settingsStatus');
+        if (status) status.textContent = 'Preferences saved.';
+      }
+
+      if (action === 'toggle-timer') {
+        if (state.timerRunning) {
+          clearInterval(state.timerInterval);
+          state.timerInterval = null;
+          state.timerRunning = false;
+          render();
+        } else {
+          state.timerRunning = true;
+          state.timerInterval = setInterval(() => {
+            if (state.timerSeconds > 0) {
+              state.timerSeconds -= 1;
+              render();
+            } else {
+              clearInterval(state.timerInterval);
+              state.timerInterval = null;
+              state.timerRunning = false;
+              state.todayMinutes += state.timerMinutes;
+              saveStudyProgress();
+              render();
+              alert('Focus session complete!');
             }
+          }, 1000);
+          render();
+        }
+      }
+
+      if (action === 'set-timer') {
+        const input = document.getElementById('customMinutes');
+        const minutes = Number(input && input.value);
+        if (Number.isInteger(minutes) && minutes >= 1 && minutes <= 120) {
+          clearInterval(state.timerInterval);
+          state.timerInterval = null;
+          state.timerRunning = false;
+          state.timerMinutes = minutes;
+          state.timerSeconds = minutes * 60;
+          render();
+        } else if (input) {
+          input.focus();
+          input.setCustomValidity('Choose a duration from 1 to 120 minutes.');
+          input.reportValidity();
+          input.setCustomValidity('');
+        }
+      }
+
+      if (action === 'reset-timer') {
+        clearInterval(state.timerInterval);
+        state.timerInterval = null;
+        state.timerRunning = false;
+        state.timerSeconds = state.timerMinutes * 60;
+        render();
+      }
+
+      if (action === 'add-hour') {
+        state.todayMinutes += 60;
+        saveStudyProgress();
+        render();
+      }
+
+      if (action === 'complete-study') {
+        if (state.todayMinutes > state.recordMinutes) {
+          state.recordMinutes = state.todayMinutes;
+          saveStudyProgress();
+          alert('Congratulations! You broke your study record!');
+        } else if (state.todayMinutes > 0) {
+          alert('Good job! Keep it up!');
+        } else {
+          alert('Please study first before completing!');
+        }
+
+        if (action === 'remove-note') {
+          state.notes.splice(Number(target.dataset.noteIndex), 1);
+          saveNotes();
+          render();
+        }
+      }
+
+      if (action === 'select-year') {
+        state.year = target.dataset.year;
+        state.view = 'subject-list';
+        state.subject = null;
+        state.section = null;
+        state.search = '';
+        render();
+      }
+
+      if (action === 'go-home') {
+        state.view = 'landing';
+        state.course = null;
+        state.year = null;
+        state.subject = null;
+        state.section = null;
+        state.search = '';
+        render();
+      }
+
+      if (action === 'go-year-select') {
+        state.view = 'year-select';
+        state.year = null;
+        state.subject = null;
+        state.section = null;
+        state.search = '';
+        render();
+      }
+
+      if (action === 'go-subject-list') {
+        state.view = 'subject-list';
+        state.subject = null;
+        state.section = null;
+        state.search = '';
+        render();
+      }
+
+      if (action === 'open-subject') {
+        const subjectId = target.dataset.subjectId;
+        const yearKey = state.year === 'first-year' ? 'firstYear' : 'secondYear';
+        const subject = dPharmContent[yearKey].subjects.find(item => item.id === subjectId);
+        state.subject = subject;
+        state.view = 'subject-detail';
+        state.section = null;
+        state.search = '';
+        render();
+      }
+
+      if (action === 'open-section') {
+        const yearKey = state.year === 'first-year' ? 'firstYear' : 'secondYear';
+        const subject = dPharmContent[yearKey].subjects.find(item => item.id === state.subject.id);
+        const index = Number(target.dataset.sectionIndex);
+        state.section = subject.sections[index];
+        state.view = 'reading-view';
+        render();
+      }
+
+      if (action === 'close-section') {
+        state.section = null;
+        state.view = 'subject-detail';
+        render();
+      }
+
+      if (action === 'toggle-bookmark') {
+        const title = target.dataset.bookmarkTitle || target.closest('[data-bookmark-title]')?.dataset.bookmarkTitle;
+        toggleBookmark(title);
+      }
+    });
+
+    document.addEventListener('submit', (event) => {
+      if (event.target.dataset.action !== 'submit-auth') return;
+      event.preventDefault();
+      const formData = new FormData(event.target);
+      const email = String(formData.get('email') || '').trim();
+      const name = String(formData.get('name') || '').trim();
+      if (state.authMode === 'signup') {
+        const displayName = name || 'Student Name';
+        state.user = {
+          name: displayName,
+          email,
+          initials: displayName.split(/\s+/).filter(Boolean).slice(0, 2).map(part => part[0].toUpperCase()).join('') || 'S'
         };
+        saveUser();
+        state.authMessage = 'Account created successfully!';
+      } else {
+        state.user.email = email || state.user.email;
+        saveUser();
+        state.authMessage = 'Login successful!';
+      }
+      state.view = 'dashboard';
+      render();
+    });
 
-        const dPharmContent = {
-            firstYear: {
-                title: "D.Pharm First Year",
-                subjects: [
-                    {
-                        id: "pharmaceutics-i",
-                        name: "Pharmaceutics",
-                        icon: "fa-pills",
-                        sections: [
-                            {
-                                title: "Introduction to Pharmaceutics",
-                                content: "Pharmaceutics is the science of dosage form design. It involves turning a pure drug substance into a safe and effective medicine that a patient can take.\n\nKey Definition:\n'Drug' is the active chemical ingredient that cures the disease.\n'Medicine' is the final product containing the drug plus other inactive ingredients (excipients) designed for easy use by the patient.",
-                                important: "Remember the basic difference between Drug and Medicine for your viva."
-                            },
-                            {
-                                title: "Prescription",
-                                content: "A prescription is a written order from a registered medical practitioner to a pharmacist, instructing them to compound and dispense medication to a specific patient.\n\nMajor parts of a prescription:\n1. Prescriber Information\n2. Patient Details\n3. Superscription (Rx symbol)\n4. Inscription (Main medication name & strength)\n5. Subscription (Instructions to pharmacist)\n6. Signatura (Instructions to patient)",
-                                important: "Be ready to name all 6 parts of a prescription during viva."
-                            },
-                            {
-                                title: "Dosage Forms",
-                                content: "Dosage forms are the physical forms in which a medicine is produced and presented. They include liquid forms (syrups, suspensions), solid forms (tablets, capsules), and semi-solid forms (creams, ointments)."
-                            }
-                        ]
-                    },
-                    {
-                        id: "pharmaceutical-chemistry",
-                        name: "Pharmaceutical Chemistry",
-                        icon: "fa-flask",
-                        sections: [
-                            {
-                                title: "Introduction to Pharmaceutical Chemistry",
-                                content: "Pharmaceutical Chemistry involves the study of drugs from a chemical perspective. This includes their structure, synthesis, and how they react within the body. We look at different chemical groups and how they affect the drug's action."
-                            },
-                            {
-                                title: "Sources of Impurities",
-                                content: "Impurities are unwanted chemicals that remain in the medicine. They can come from raw materials, the manufacturing process, or storage conditions. Controlling impurities is crucial for patient safety."
-                            }
-                        ]
-                    },
-                    {
-                        id: "pharmacognosy",
-                        name: "Pharmacognosy",
-                        icon: "fa-leaf",
-                        sections: [
-                            {
-                                title: "Introduction to Pharmacognosy",
-                                content: "Pharmacognosy is the study of medicinal drugs derived from plants and other natural sources. It covers the history, production, and chemical composition of natural remedies like herbs, roots, and essential oils."
-                            },
-                            {
-                                title: "Plant Constituents",
-                                content: "These are the active chemical compounds found in plants that provide medicinal effects. Common examples include alkaloids, glycosides, and volatile oils."
-                            }
-                        ]
-                    },
-                    {
-                        id: "hap",
-                        name: "Human Anatomy & Physiology",
-                        icon: "fa-user-nurse",
-                        sections: [
-                            {
-                                title: "Introduction to Human Anatomy and Physiology",
-                                content: "Human Anatomy is the study of the physical structure of the human body (organs, bones, muscles). Physiology is the study of how these structures work and interact to keep us alive."
-                            },
-                            {
-                                title: "The Cell",
-                                content: "The cell is the basic structural and functional unit of all living organisms. We study the parts of the cell and their functions, as well as how cells divide and communicate."
-                            }
-                        ]
-                    },
-                    {
-                        id: "social-pharmacy",
-                        name: "Social Pharmacy",
-                        icon: "fa-users",
-                        sections: [
-                            {
-                                title: "Introduction to Social Pharmacy",
-                                content: "Social Pharmacy deals with the role of pharmacy and medicines in society. It covers public health, health promotion, disease prevention, and the pharmacist's responsibility to the community."
-                            },
-                            {
-                                title: "National Health Programs",
-                                content: "Various programs implemented by the government to control and prevent widespread diseases in society, such as tuberculosis, polio, and HIV/AIDS."
-                            }
-                        ]
-                    }
-                ]
-            },
-            secondYear: {
-                title: "D.Pharm Second Year",
-                subjects: [
-                    {
-                        id: "pharmacology",
-                        name: "Pharmacology",
-                        icon: "fa-syringe",
-                        sections: [
-                            {
-                                title: "Introduction to Pharmacology",
-                                content: "Pharmacology is the study of how drugs interact with living systems. It combines 'Pharmacokinetics' (what the body does to the drug) and 'Pharmacodynamics' (what the drug does to the body)."
-                            },
-                            {
-                                title: "Routes of Drug Administration",
-                                content: "The different ways a drug can enter the body, such as oral (swallowing), intravenous (injection into the vein), transdermal (skin patches), and intramuscular (injection into the muscle)."
-                            }
-                        ]
-                    },
-                    {
-                        id: "community-pharmacy",
-                        name: "Community Pharmacy & Management",
-                        icon: "fa-hospital-user",
-                        sections: [
-                            {
-                                title: "Introduction to Community Pharmacy",
-                                content: "A community pharmacy is a retail store that dispenses medications and offers health advice to members of the general population. The community pharmacist acts as an accessible healthcare provider."
-                            },
-                            {
-                                title: "Good Pharmacy Practice (GPP)",
-                                content: "Standards that community pharmacists must follow to ensure they provide optimal professional care to patients."
-                            }
-                        ]
-                    },
-                    {
-                        id: "biochemistry",
-                        name: "Biochemistry & Clinical Pathology",
-                        icon: "fa-dna",
-                        sections: [
-                            {
-                                title: "Introduction to Biochemistry",
-                                content: "Biochemistry is the study of chemical processes within and relating to living organisms. It bridges biology and chemistry, focusing on cellular components like proteins, carbohydrates, lipids, and nucleic acids."
-                            },
-                            {
-                                title: "Carbohydrates Metabolism",
-                                content: "How the body processes and breaks down sugars and starches to produce energy for daily functions."
-                            }
-                        ]
-                    },
-                    {
-                        id: "pharmacotherapeutics",
-                        name: "Pharmacotherapeutics",
-                        icon: "fa-briefcase-medical",
-                        sections: [
-                            {
-                                title: "Introduction to Pharmacotherapeutics",
-                                content: "Pharmacotherapeutics is the study of the therapeutic uses and effects of drugs. It focuses on selecting the appropriate drug and dosage for a specific patient's condition based on clinical evidence."
-                            },
-                            {
-                                title: "Individualized Dosing",
-                                content: "Adjusting drug dosages to match a patient's individual characteristics, such as age, weight, and kidney function."
-                            }
-                        ]
-                    },
-                    {
-                        id: "hospital-pharmacy",
-                        name: "Hospital & Clinical Pharmacy",
-                        icon: "fa-clinic-medical",
-                        sections: [
-                            {
-                                title: "Introduction to Hospital Pharmacy",
-                                content: "Hospital pharmacy is a specialized field where the pharmacist operates within a hospital environment. This includes managing inpatient medications, preparing IV solutions, and collaborating with doctors and nurses."
-                            },
-                            {
-                                title: "Formulary System",
-                                content: "An officially approved list of medicines and therapies maintained by the hospital to ensure safe and cost-effective medication use."
-                            }
-                        ]
-                    },
-                    {
-                        id: "law-ethics",
-                        name: "Pharmacy Law & Ethics",
-                        icon: "fa-gavel",
-                        sections: [
-                            {
-                                title: "Introduction to Pharmacy Law",
-                                content: "Pharmacy Law covers the legal regulations governing the manufacture, sale, and distribution of medicines. Ethics focus on the moral responsibilities of the pharmacist towards the patient and healthcare system."
-                            },
-                            {
-                                title: "The Drugs and Cosmetics Act, 1940",
-                                content: "A vital legislative act in India regulating the import, manufacture, distribution, and sale of drugs and cosmetics to ensure quality and standard."
-                            }
-                        ]
-                    }
-                ]
-            }
-        };
-
-        const App = () => {
-            const [view, setView] = useState('landing');
-            const [course, setCourse] = useState(null);
-            const [year, setYear] = useState(null);
-            const [subject, setSubject] = useState(null);
-            const [section, setSection] = useState(null);
-            const [isDark, setIsDark] = useState(false);
-            const [bookmarks, setBookmarks] = useState(readStoredBookmarks);
-            const [searchTerm, setSearchTerm] = useState('');
-
-            useEffect(() => {
-                if (isDark) {
-                    document.documentElement.classList.add('dark');
-                } else {
-                    document.documentElement.classList.remove('dark');
-                }
-            }, [isDark]);
-
-            useEffect(() => {
-                localStorage.setItem('pharmaBookmarks', JSON.stringify(bookmarks));
-            }, [bookmarks]);
-
-            const resetSearch = () => setSearchTerm('');
-
-            const goHome = () => {
-                setView('landing');
-                setCourse(null);
-                setYear(null);
-                setSubject(null);
-                setSection(null);
-                resetSearch();
-            };
-
-            const selectCourse = () => {
-                setCourse('d-pharm');
-                setYear(null);
-                setSubject(null);
-                setSection(null);
-                resetSearch();
-                setView('year-select');
-            };
-
-            const selectYear = (selectedYear) => {
-                setYear(selectedYear);
-                setSubject(null);
-                setSection(null);
-                resetSearch();
-                setView('subject-list');
-            };
-
-            const selectSubject = (selectedSubject) => {
-                setSubject(selectedSubject);
-                setSection(null);
-                resetSearch();
-                setView('subject-detail');
-            };
-
-            const toggleBookmark = (secTitle, e) => {
-                if (e) e.stopPropagation();
-                if (bookmarks.includes(secTitle)) {
-                    setBookmarks(bookmarks.filter((b) => b !== secTitle));
-                } else {
-                    setBookmarks([...bookmarks, secTitle]);
-                }
-            };
-
-            const toggleTheme = () => setIsDark(!isDark);
-
-            const renderHeader = () => (
-                <header className="bg-medical-teal dark:bg-dark-card text-white shadow-lg mb-8 transition-colors duration-300">
-                    <div className="container mx-auto max-w-6xl py-6 px-6 flex items-center justify-between">
-                        <div>
-                            <h1 className="text-4xl font-extrabold tracking-tight mb-2">PharmaHype</h1>
-                            <p className="text-cyan-100 text-lg font-medium">Your Ultimate Pharmacy & Medical Learning Portal</p>
-                        </div>
-                        <button
-                            type="button"
-                            onClick={toggleTheme}
-                            className="w-12 h-12 rounded-full bg-cyan-600 dark:bg-slate-700 hover:bg-cyan-700 dark:hover:bg-slate-600 transition-colors duration-300 flex items-center justify-center text-xl shadow-md"
-                        >
-                            <i className={`fa-solid ${isDark ? 'fa-sun' : 'fa-moon'}`}></i>
-                        </button>
-                    </div>
-                </header>
-            );
-
-            const renderBreadcrumbs = () => {
-                if (view === 'landing') return null;
-                return (
-                    <nav className="text-sm text-medical-muted dark:text-dark-muted mb-6 font-medium flex items-center gap-2">
-                        <button type="button" onClick={goHome} className="hover:text-medical-teal dark:hover:text-cyan-400 transition-colors">Home</button>
-                        {course && (
-                            <>
-                                <i className="fa-solid fa-chevron-right text-xs text-slate-300 dark:text-slate-600"></i>
-                                <button type="button" onClick={() => { setView('year-select'); setYear(null); setSubject(null); setSection(null); resetSearch(); }} className="hover:text-medical-teal dark:hover:text-cyan-400 transition-colors uppercase">{course}</button>
-                            </>
-                        )}
-                        {year && (
-                            <>
-                                <i className="fa-solid fa-chevron-right text-xs text-slate-300 dark:text-slate-600"></i>
-                                <button type="button" onClick={() => { setView('subject-list'); setSubject(null); setSection(null); resetSearch(); }} className="hover:text-medical-teal dark:hover:text-cyan-400 transition-colors capitalize">{year.replace('-', ' ')}</button>
-                            </>
-                        )}
-                        {subject && (
-                            <>
-                                <i className="fa-solid fa-chevron-right text-xs text-slate-300 dark:text-slate-600"></i>
-                                <span className="text-medical-text dark:text-dark-text font-semibold">{subject.name}</span>
-                            </>
-                        )}
-                    </nav>
-                );
-            };
-
-            const renderLanding = () => (
-                <div className="container mx-auto max-w-6xl px-6 pb-12">
-                    <div className="text-center mb-12">
-                        <h2 className="text-3xl font-bold mb-4">Choose Your Course</h2>
-                        <div className="w-24 h-1 bg-medical-teal dark:bg-cyan-500 mx-auto rounded-full"></div>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <button
-                            type="button"
-                            onClick={selectCourse}
-                            className="group bg-white dark:bg-dark-card p-8 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 hover:border-medical-teal dark:hover:border-cyan-500 hover:shadow-cyan-100 dark:hover:shadow-none hover:shadow-xl transition-all duration-300 text-left flex items-start gap-6"
-                        >
-                            <div className="w-16 h-16 rounded-full bg-cyan-50 dark:bg-slate-700 text-medical-teal dark:text-cyan-400 flex items-center justify-center text-3xl group-hover:bg-medical-teal dark:group-hover:bg-cyan-500 group-hover:text-white dark:group-hover:text-slate-900 transition-all duration-300">
-                                <i className="fa-solid fa-mortar-pestle"></i>
-                            </div>
-                            <div>
-                                <h3 className="text-2xl font-bold mb-1">D.Pharm</h3>
-                                <p className="text-medical-muted dark:text-dark-muted mb-4">Diploma in Pharmacy Study Materials, Notes, and Exam Prep.</p>
-                                <span className="text-medical-teal dark:text-cyan-400 font-semibold group-hover:translate-x-1 inline-block transition-transform">Get Started <i className="fa-solid fa-arrow-right ml-1"></i></span>
-                            </div>
-                        </button>
-
-                        <div className="opacity-50 cursor-not-allowed bg-slate-100 dark:bg-slate-800 p-8 rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 flex items-start gap-6">
-                            <div className="w-16 h-16 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-400 dark:text-slate-500 flex items-center justify-center text-3xl">
-                                <i className="fa-solid fa-graduation-cap"></i>
-                            </div>
-                            <div>
-                                <h3 className="text-2xl font-bold text-slate-400 dark:text-slate-500 mb-1">B.Pharm</h3>
-                                <p className="text-slate-400 dark:text-slate-500 mb-4">Bachelor in Pharmacy - Coming Soon.</p>
-                            </div>
-                        </div>
-
-                        <div className="opacity-50 cursor-not-allowed bg-slate-100 dark:bg-slate-800 p-8 rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 flex items-start gap-6">
-                            <div className="w-16 h-16 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-400 dark:text-slate-500 flex items-center justify-center text-3xl">
-                                <i className="fa-solid fa-flask-vial"></i>
-                            </div>
-                            <div>
-                                <h3 className="text-2xl font-bold text-slate-400 dark:text-slate-500 mb-1">M.Pharm</h3>
-                                <p className="text-slate-400 dark:text-slate-500 mb-4">Master in Pharmacy - Coming Soon.</p>
-                            </div>
-                        </div>
-
-                        <div className="opacity-50 cursor-not-allowed bg-slate-100 dark:bg-slate-800 p-8 rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 flex items-start gap-6">
-                            <div className="w-16 h-16 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-400 dark:text-slate-500 flex items-center justify-center text-3xl">
-                                <i className="fa-solid fa-user-md"></i>
-                            </div>
-                            <div>
-                                <h3 className="text-2xl font-bold text-slate-400 dark:text-slate-500 mb-1">Pharm.D</h3>
-                                <p className="text-slate-400 dark:text-slate-500 mb-4">Doctor of Pharmacy - Coming Soon.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            );
-
-            const renderYearSelect = () => (
-                <div className="container mx-auto max-w-4xl px-6 pb-12">
-                    <div className="text-center mb-12">
-                        <h2 className="text-3xl font-bold mb-4">Select Academic Year</h2>
-                        <div className="w-24 h-1 bg-medical-teal dark:bg-cyan-500 mx-auto rounded-full"></div>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <button
-                            type="button"
-                            onClick={() => selectYear('first-year')}
-                            className="bg-white dark:bg-dark-card p-8 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 hover:border-medical-teal dark:hover:border-cyan-500 hover:shadow-cyan-100 dark:hover:shadow-none hover:shadow-xl transition-all duration-300 text-center"
-                        >
-                            <div className="w-20 h-20 rounded-full bg-cyan-50 dark:bg-slate-700 text-medical-teal dark:text-cyan-400 flex items-center justify-center text-4xl mx-auto mb-6">
-                                <i className="fa-solid fa-1"></i>
-                            </div>
-                            <h3 className="text-2xl font-bold mb-2">First Year</h3>
-                            <p className="text-medical-muted dark:text-dark-muted">Access all basic subjects, notes, and foundational topics.</p>
-                        </button>
-
-                        <button
-                            type="button"
-                            onClick={() => selectYear('second-year')}
-                            className="bg-white dark:bg-dark-card p-8 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 hover:border-medical-teal dark:hover:border-cyan-500 hover:shadow-cyan-100 dark:hover:shadow-none hover:shadow-xl transition-all duration-300 text-center"
-                        >
-                            <div className="w-20 h-20 rounded-full bg-cyan-50 dark:bg-slate-700 text-medical-teal dark:text-cyan-400 flex items-center justify-center text-4xl mx-auto mb-6">
-                                <i className="fa-solid fa-2"></i>
-                            </div>
-                            <h3 className="text-2xl font-bold mb-2">Second Year</h3>
-                            <p className="text-medical-muted dark:text-dark-muted">Access advanced clinical subjects, pharmacology, and law.</p>
-                        </button>
-                    </div>
-                </div>
-            );
-
-            const renderSubjectList = () => {
-                const yearData = year === 'first-year' ? dPharmContent.firstYear : dPharmContent.secondYear;
-                return (
-                    <div className="container mx-auto max-w-6xl px-6 pb-12">
-                        <div className="text-center mb-12">
-                            <h2 className="text-3xl font-bold mb-2">{yearData.title}</h2>
-                            <p className="text-medical-muted dark:text-dark-muted font-medium">Select a subject to view chapters and notes.</p>
-                            <div className="w-24 h-1 bg-medical-teal dark:bg-cyan-500 mx-auto mt-6 rounded-full"></div>
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            {yearData.subjects.map((sub) => (
-                                <button
-                                    type="button"
-                                    key={sub.id}
-                                    onClick={() => selectSubject(sub)}
-                                    className="group bg-white dark:bg-dark-card p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 hover:border-medical-teal dark:hover:border-cyan-500 hover:shadow-cyan-50 dark:hover:shadow-none hover:shadow-lg transition-all duration-300 flex items-center gap-6"
-                                >
-                                    <div className="w-16 h-16 rounded-2xl bg-cyan-50 dark:bg-slate-700 text-medical-teal dark:text-cyan-400 flex items-center justify-center text-3xl group-hover:bg-medical-teal dark:group-hover:bg-cyan-500 group-hover:text-white dark:group-hover:text-slate-900 transition-colors duration-300">
-                                        <i className={`fa-solid ${sub.icon}`}></i>
-                                    </div>
-                                    <div className="text-left flex-grow">
-                                        <h3 className="text-lg font-bold group-hover:text-medical-teal dark:group-hover:text-cyan-400">{sub.name}</h3>
-                                        <p className="text-medical-muted dark:text-dark-muted text-sm">View all topics & study material</p>
-                                    </div>
-                                    <i className="fa-solid fa-chevron-right text-slate-300 dark:text-slate-600 group-hover:text-medical-teal dark:group-hover:text-cyan-500"></i>
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-                );
-            };
-
-            const renderSubjectDetail = () => {
-                const filteredSections = subject.sections.filter((sec) =>
-                    sec.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                    sec.content.toLowerCase().includes(searchTerm.toLowerCase())
-                );
-
-                return (
-                    <div className="container mx-auto max-w-6xl px-6 pb-12">
-                        <div className="flex flex-col md:flex-row gap-12">
-                            <aside className="w-full md:w-1/3">
-                                <div className="bg-white dark:bg-dark-card rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-8 sticky top-8 transition-colors duration-300">
-                                    <div className="w-20 h-20 rounded-2xl bg-cyan-50 dark:bg-slate-700 text-medical-teal dark:text-cyan-400 flex items-center justify-center text-4xl mb-6">
-                                        <i className={`fa-solid ${subject.icon}`}></i>
-                                    </div>
-                                    <h2 className="text-3xl font-bold mb-4">{subject.name}</h2>
-                                    <div className="space-y-4">
-                                        <div className="flex items-center gap-3 text-medical-teal dark:text-cyan-400 font-semibold">
-                                            <i className="fa-solid fa-book-open"></i>
-                                            <span>{subject.sections.length} Chapters in this subject</span>
-                                        </div>
-                                        <div className="flex items-center gap-3 text-medical-muted dark:text-dark-muted font-semibold opacity-50 cursor-not-allowed">
-                                            <i className="fa-solid fa-clipboard-question"></i>
-                                            <span>Viva Questions (Coming Soon)</span>
-                                        </div>
-                                        <div className="flex items-center gap-3 text-medical-muted dark:text-dark-muted font-semibold opacity-50 cursor-not-allowed">
-                                            <i className="fa-solid fa-file-pdf"></i>
-                                            <span>Past Papers (Coming Soon)</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </aside>
-
-                            <main className="w-full md:w-2/3">
-                                <div className="mb-8 relative">
-                                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-medical-muted dark:text-dark-muted">
-                                        <i className="fa-solid fa-magnifying-glass"></i>
-                                    </div>
-                                    <input
-                                        type="text"
-                                        placeholder="Search chapters or topics..."
-                                        value={searchTerm}
-                                        onChange={(e) => setSearchTerm(e.target.value)}
-                                        className="w-full py-4 pl-12 pr-4 bg-white dark:bg-dark-card rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-medical-teal dark:focus:ring-cyan-500 transition-all duration-300 placeholder:text-medical-muted dark:placeholder:text-dark-muted"
-                                    />
-                                </div>
-
-                                <div className="space-y-6">
-                                    {filteredSections.length > 0 ? (
-                                        filteredSections.map((sec, index) => (
-                                            <div
-                                                key={`${sec.title}-${index}`}
-                                                className="w-full bg-white dark:bg-dark-card p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 hover:border-medical-teal dark:hover:border-cyan-500 hover:shadow-cyan-50 dark:hover:shadow-none hover:shadow-lg transition-all duration-300 text-left flex items-center justify-between group"
-                                            >
-                                                <button
-                                                    type="button"
-                                                    onClick={() => setSection(sec)}
-                                                    className="flex items-center gap-6 flex-grow text-left"
-                                                >
-                                                    <div className="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-700 text-medical-teal dark:text-cyan-400 flex items-center justify-center font-bold group-hover:bg-medical-teal dark:group-hover:bg-cyan-500 group-hover:text-white dark:group-hover:text-slate-900 transition-colors duration-300">
-                                                        {index + 1}
-                                                    </div>
-                                                    <div className="flex-grow">
-                                                        <h3 className="text-xl font-bold mb-1 group-hover:text-medical-teal dark:group-hover:text-cyan-400">{sec.title}</h3>
-                                                        <p className="text-medical-muted dark:text-dark-muted line-clamp-1">{sec.content}</p>
-                                                    </div>
-                                                </button>
-
-                                                <div className="flex items-center gap-4">
-                                                    {sec.important && (
-                                                        <span className="bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-500 text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1">
-                                                            <i className="fa-solid fa-star"></i> Important
-                                                        </span>
-                                                    )}
-                                                    <button
-                                                        type="button"
-                                                        onClick={(e) => toggleBookmark(sec.title, e)}
-                                                        className={`text-2xl transition-colors duration-300 ${bookmarks.includes(sec.title) ? 'text-amber-500' : 'text-slate-300 dark:text-slate-600 hover:text-amber-400'}`}
-                                                        aria-label={`Toggle bookmark for ${sec.title}`}
-                                                    >
-                                                        <i className="fa-solid fa-bookmark"></i>
-                                                    </button>
-                                                    <i className="fa-solid fa-chevron-right text-slate-300 dark:text-slate-600 group-hover:text-medical-teal dark:group-hover:text-cyan-500"></i>
-                                                </div>
-                                            </div>
-                                        ))
-                                    ) : (
-                                        <div className="text-center py-12 text-medical-muted dark:text-dark-muted">
-                                            <i className="fa-solid fa-box-open text-4xl mb-4 opacity-50"></i>
-                                            <p className="text-lg font-medium">No chapters found matching your search.</p>
-                                        </div>
-                                    )}
-                                </div>
-                            </main>
-                        </div>
-                    </div>
-                );
-            };
-
-            const renderReadingView = () => (
-                <div className="container mx-auto max-w-4xl px-6 pb-24">
-                    <button
-                        type="button"
-                        onClick={() => setSection(null)}
-                        className="text-medical-teal dark:text-cyan-400 font-semibold mb-6 flex items-center gap-2 hover:translate-x-[-4px] transition-transform"
-                    >
-                        <i className="fa-solid fa-arrow-left"></i> Back to Chapters
-                    </button>
-
-                    <article className="bg-white dark:bg-dark-card p-10 md:p-12 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-700 transition-colors duration-300">
-                        <div className="flex justify-between items-start mb-6">
-                            <h2 className="text-4xl font-extrabold text-medical-text dark:text-dark-text leading-tight">{section.title}</h2>
-                            <button
-                                type="button"
-                                onClick={(e) => toggleBookmark(section.title, e)}
-                                className={`text-3xl transition-colors duration-300 ${bookmarks.includes(section.title) ? 'text-amber-500' : 'text-slate-300 dark:text-slate-600 hover:text-amber-400'}`}
-                                aria-label={`Toggle bookmark for ${section.title}`}
-                            >
-                                <i className="fa-solid fa-bookmark"></i>
-                            </button>
-                        </div>
-
-                        {section.important && (
-                            <div className="bg-amber-50 dark:bg-amber-900/20 border-l-4 border-amber-500 p-6 rounded-r-2xl mb-10">
-                                <div className="flex items-start">
-                                    <div className="flex-shrink-0 text-amber-500 text-2xl">
-                                        <i className="fa-solid fa-triangle-exclamation"></i>
-                                    </div>
-                                    <div className="ml-4">
-                                        <h3 className="text-lg font-bold text-amber-800 dark:text-amber-400">Important Highlight</h3>
-                                        <p className="text-amber-700 dark:text-amber-300 mt-1 font-semibold">{section.important}</p>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-
-                        <div className="w-24 h-1 bg-medical-teal dark:bg-cyan-500 rounded-full mb-10"></div>
-                        <div className="prose prose-slate dark:prose-invert prose-lg max-w-none text-medical-muted dark:text-dark-muted leading-relaxed">
-                            {section.content.split('\n').map((paragraph, i) => (
-                                <p key={i} className="mb-6">{paragraph}</p>
-                            ))}
-                        </div>
-                    </article>
-                </div>
-            );
-
-            return (
-                <div className="min-h-screen bg-medical-bg dark:bg-dark-bg transition-colors duration-300">
-                    {renderHeader()}
-                    {!section && renderBreadcrumbs()}
-
-                    {view === 'landing' && renderLanding()}
-                    {view === 'year-select' && renderYearSelect()}
-                    {view === 'subject-list' && renderSubjectList()}
-                    {view === 'subject-detail' && !section && renderSubjectDetail()}
-                    {section && renderReadingView()}
-                </div>
-            );
-        };
-
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
-    </script>
+    render();
+  </script>
 </body>
 </html>
