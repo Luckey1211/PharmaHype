@@ -88,8 +88,8 @@
       font-weight: 600;
     }
     .theme-btn {
-      width: 48px; height: 48px; border: none; border-radius: 50%;
-      background: var(--cyan-600); color: white; font-size: 1.2rem; cursor: pointer;
+      min-height: 48px; border: none; border-radius: 999px; padding: 0 14px;
+      background: var(--cyan-600); color: white; font-size: 0.95rem; font-weight: 700; cursor: pointer;
       transition: 0.2s ease;
     }
     .theme-btn:hover { background: #0a6d8b; }
@@ -97,7 +97,7 @@
       width: 48px; height: 48px; border: 1px solid rgba(255,255,255,0.35); border-radius: 50%;
       background: transparent; color: white; font-size: 1.25rem; cursor: pointer;
     }
-    .header-actions { display: flex; gap: 10px; }
+    .header-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 10px; }
     .account-btn {
       border: 1px solid rgba(255,255,255,0.35); border-radius: 999px; padding: 0 16px;
       background: transparent; color: white; cursor: pointer; font-weight: 700;
@@ -396,7 +396,7 @@
       <div class="header-actions">
         <button class="account-btn" id="accountToggle" aria-label="Open account">Account</button>
         <button class="settings-btn" id="settingsToggle" aria-label="Open appearance settings">⚙</button>
-        <button class="theme-btn" id="themeToggle" aria-label="Toggle theme">☾</button>
+        <button class="theme-btn" id="themeToggle" aria-label="Switch to dark mode" aria-pressed="false">☾ Dark mode</button>
       </div>
     </div>
   </header>
@@ -640,7 +640,11 @@
     function setDarkTheme() {
       document.body.classList.toggle('dark', state.dark);
       const button = document.getElementById('themeToggle');
-      if (button) button.textContent = state.dark ? '☀' : '☾';
+      if (button) {
+        button.textContent = state.dark ? '☀ Light mode' : '☾ Dark mode';
+        button.setAttribute('aria-label', state.dark ? 'Switch to light mode' : 'Switch to dark mode');
+        button.setAttribute('aria-pressed', String(state.dark));
+      }
     }
 
     function applySettings() {
@@ -1449,5 +1453,15 @@
 
     render();
   </script>
+  <script src="notes.js"></script>
+  <script src="notes2.js"></script>
+  <script src="notes3.js"></script>
+  <script src="notes4.js"></script>
+  <script src="diagrams.js"></script>
+  <script src="notes5.js"></script>
+  <script src="notes6.js"></script>
+  <script src="fixes.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+  <script src="cloud.js"></script>
 </body>
 </html>
