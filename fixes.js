@@ -13,6 +13,7 @@
 .article-content mark{background:#fef08a;color:#1e293b;padding:0 3px;border-radius:3px}
 .simple{background:#ecfeff;border-left:4px solid #0891b2;padding:12px 14px;border-radius:0 12px 12px 0;color:var(--medical-text)}
 body.dark .simple{background:rgba(8,145,178,.15);color:var(--dark-text)}
+body.dark .course-card,body.dark .subject-card,body.dark .chapter-card,body.dark .year-card,body.dark .disabled-card{color:var(--dark-text)}
 .brand{display:flex;align-items:center;gap:16px}
 .brand-mark{width:64px;height:64px;border-radius:50%;background:#fff;display:grid;place-items:center;flex-shrink:0}
 .brand-mark img{width:44px;height:auto;display:block}
